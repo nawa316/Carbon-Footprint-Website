@@ -7,7 +7,7 @@ import billRoute from './routes/bill.js'
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 
 
 // Initialize Express app
@@ -29,7 +29,7 @@ app.use("/api/bill", billRoute);
 // test route 
 
 app.get("/", (req, res) => {
-    console.log(" ");
+    res.json({ status: "ok" });
 });
 
 // start server

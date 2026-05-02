@@ -278,6 +278,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { useUserInput } from "../context/UserInputContext";
 import "./QuizSection.css";
+import { apiUrl } from "../config/api";
 
 const QuizSection = ({ 
   icon: Icon, 
@@ -417,7 +418,7 @@ const QuizSection = ({
 
       console.log("Sending data:", formData);
 
-      const res = await fetch("http://localhost:5000/api/bill/verify", {
+      const res = await fetch(apiUrl("/api/bill/verify"), {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`, // Replace with actual token

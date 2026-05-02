@@ -2,6 +2,10 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
+const BACKEND_BASE_URL = (
+    process.env.BACKEND_BASE_URL || `http://localhost:${process.env.PORT || 5000}`
+).replace(/\/$/, "");
+
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -12,8 +16,7 @@ const transporter = nodemailer.createTransport({
 
 
 export const sendVerificationMail = async (email, token) => {
-    // const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${token}`;
-    const verificationLink = `http://localhost:5000/api/auth/verify-email/${token}`;
+    const verificationLink = `${BACKEND_BASE_URL}/api/auth/verify-email/${token}`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -27,7 +30,7 @@ export const sendVerificationMail = async (email, token) => {
 };
 
 export const sendResetPasswordMail = async (email, token) => { 
-    const resetLink = `http://localhost:5000/api/auth/reset-password/${token}`;
+    const resetLink = `${BACKEND_BASE_URL}/api/auth/reset-password/${token}`;
 
     const mailOptions = {
         from: process.env.EMAIL_USER,

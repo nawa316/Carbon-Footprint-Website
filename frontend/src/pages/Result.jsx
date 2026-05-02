@@ -356,6 +356,7 @@ import { Car, Bolt, Utensils, ShoppingBag, Bus, Lightbulb, Leaf, RefreshCcw, Plu
 // import FootprintProgress from "./FootprintProgress";
 import Confetti from "react-confetti";
 import { motion } from "framer-motion";
+import { apiUrl } from "../config/api";
 
 const Result = () => {
   const { userData } = useUserInput();
@@ -373,7 +374,7 @@ const Result = () => {
       };
       
   
-      const res = await fetch("http://localhost:5000/api/gamification/points", {
+      const res = await fetch(apiUrl("/api/gamification/points"), {
         method: "PUT",
         headers: headers,
         body: JSON.stringify({ pointsToAdd: pointsEarned }),
@@ -398,7 +399,7 @@ const Result = () => {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        const res = await fetch("http://localhost:5000/api/footprint/calculate", {
+        const res = await fetch(apiUrl("/api/footprint/calculate"), {
           method: "POST",
           headers: headers,
           body: JSON.stringify(userData),
