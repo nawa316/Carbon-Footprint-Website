@@ -5,7 +5,7 @@ import './CarbonInfo.css';
 const CarbonInfo = () => {
   const [activeFAQ, setActiveFAQ] = useState(null);
   const [visible, setVisible] = useState({});
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode] = useState(true);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
