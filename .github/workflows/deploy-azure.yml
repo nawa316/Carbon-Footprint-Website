@@ -40,11 +40,7 @@ jobs:
           # Mengatur environment variables untuk aplikasi backend
           app-settings-json: |
             [
-                { "name": "MONGODB_URI_AZURE", "value": "${{ secrets.MONGODB_URI }}", "slotSetting": false },
-                { "name": "JWT_SECRET", "value": "${{ secrets.JWT_SECRET }}", "slotSetting": false },
-                { "name": "EMAIL_USER", "value": "${{ secrets.EMAIL_USER }}", "slotSetting": false },
-                { "name": "EMAIL_PASSWORD", "value": "${{ secrets.EMAIL_PASSWORD }}", "slotSetting": false },
-                { "name": "GEMINI_API_KEY", "value": "${{ secrets.GEMINI_API_KEY }}", "slotSetting": false },
+                { "name": "MONGODB_URI_AZURE", "value": "${{ secrets.MONGODB_URI_AZURE }}", "slotSetting": false },
                 { "name": "WEBSITES_PORT", "value": "8080", "slotSetting": false }
             ]
 
@@ -114,6 +110,6 @@ jobs:
 #    - `BACKEND_APP_SERVICE_NAME`:  Nama App Service backend Anda (contoh: "sustainatrack-backend").
 #    - `FRONTEND_APP_SERVICE_NAME`: Nama App Service frontend Anda (contoh: "sustainatrack-frontend").
 #
-#    - `MONGODB_URI`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASSWORD`, `GEMINI_API_KEY`: Secrets ini tetap dibutuhkan untuk konfigurasi aplikasi backend Anda.
+#    - `MONGODB_URI_AZURE`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASSWORD`, `GEMINI_API_KEY`: Secrets ini tetap dibutuhkan untuk konfigurasi aplikasi backend Anda.
 #
 # Dengan cara ini, workflow menjadi lebih ringkas. Anda tidak perlu lagi login ke Azure atau ACR secara eksplisit.
