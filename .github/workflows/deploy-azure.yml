@@ -1,13 +1,12 @@
 # .github/workflows/deploy-azure.yml
 
-name: Build and Deploy to Azure using Publish Profile
+name: Build and Deploy to Azure (Production)
 
-# Workflow ini akan berjalan setiap kali ada push ke branch 'main'
 on:
   push:
     branches:
       - main
-  workflow_dispatch: # Memungkinkan Anda menjalankan workflow ini secara manual dari tab Actions di GitHub
+  workflow_dispatch:
 
 jobs:
   ###################################
@@ -23,12 +22,19 @@ jobs:
 
       - name: 'Build Backend Image'
         run: |
+          # Build image locally menggunakan Docker
           docker build -f backend/Dockerfile -t sustainatrack-be:${{ github.sha }} ./backend
 
       - name: 'Deploy Backend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
+          # Menggunakan nama App Service eksplisit dari Secret (Contoh: carbonbackendservice)
+          app-name: ${{ secrets.BACKEND_APP_SERVICE_NAME }}
+          
+          # Publish Profile berisi kredensial dan URL Kudu untuk deployment
           publish-profile: ${{ secrets.BACKEND_PUBLISH_PROFILE }}
+          
+          # Menggunakan image yang baru saja di-build di runner
           images: 'sustainatrack-be:${{ github.sha }}'
 
   ####################################
@@ -37,7 +43,6 @@ jobs:
   build-and-deploy-frontend:
     runs-on: ubuntu-latest
     environment: production
-    # Job ini butuh backend selesai deploy untuk mendapatkan URL-nya
     needs: build-and-deploy-backend
 
     steps:
@@ -46,39 +51,52 @@ jobs:
 
       - name: 'Build Frontend Image'
         run: |
-          BACKEND_URL="https://carbonbackendservice-becqhefhhbcqbkef.indonesiacentral-01.azurewebsites.net"
-          echo "Backend URL for Frontend Build: $BACKEND_URL"
+          # MENGHINDARI HARDCODED URL:
+          # Kita susun URL Backend berdasarkan nama App Service-nya.
+          # Jika di Azure namanya 'carbonbackendservice', maka URL-nya:
+          # https://carbonbackendservice.azurewebsites.net
+          
+          BACKEND_URL="https://${{ secrets.BACKEND_APP_SERVICE_NAME }}.azurewebsites.net"
+          echo "Connecting Frontend to Backend at: $BACKEND_URL"
 
-          docker build -f frontend/Dockerfile --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL -t sustainatrack-fe:${{ github.sha }} ./frontend
+          docker build \
+            -f frontend/Dockerfile \
+            --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL \
+            -t sustainatrack-fe:${{ github.sha }} \
+            ./frontend
 
       - name: 'Deploy Frontend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
+          # Nama App Service frontend eksplisit (Contoh: carbonfrontendservice)
+          app-name: ${{ secrets.FRONTEND_APP_SERVICE_NAME }}
           publish-profile: ${{ secrets.FRONTEND_PUBLISH_PROFILE }}
           images: 'sustainatrack-fe:${{ github.sha }}'
----
-# CATATAN PENTING & PERSIAPAN (Metode Publish Profile)
+
+################################################################################
+# PANDUAN PERSIAPAN PRODUCTION (WAJIB DIBACA)
+################################################################################
 #
-# 1. Buat Dua Azure App Service:
-#    - Sama seperti sebelumnya, pastikan Anda punya dua App Service (satu untuk backend, satu untuk frontend) dengan tipe "Docker Container".
+# 1. NAMA APP SERVICE (PERMANEN):
+#    - Buat App Service di Azure dengan nama permanen (tanpa random suffix).
+#    - Contoh: `carbonbackendservice` dan `carbonfrontendservice`.
+#    - Pastikan keduanya bertipe "Web App for Containers" (Linux).
 #
-# 2. Dapatkan Publish Profile untuk setiap App Service:
-#    - Buka halaman App Service Anda di Portal Azure.
-#    - Di bagian "Overview", klik "Get publish profile".
-#    - Ini akan mengunduh sebuah file `.publishsettings`. Buka file ini dengan teks editor.
-#    - Salin **seluruh konten** file tersebut.
+# 2. GITHUB SECRETS (UPDATE SEMUA INI):
+#    - `BACKEND_APP_SERVICE_NAME`: Isi dengan `carbonbackendservice`
+#    - `FRONTEND_APP_SERVICE_NAME`: Isi dengan `carbonfrontendservice`
+#    - `BACKEND_PUBLISH_PROFILE`: Download dari Portal Azure (App Service Backend).
+#    - `FRONTEND_PUBLISH_PROFILE`: Download dari Portal Azure (App Service Frontend).
+#    - `MONGODB_URI_AZURE`: Link database MongoDB Anda.
 #
-# 3. Siapkan GitHub Secrets:
-#    - Di repositori GitHub, pergi ke Settings > Secrets and variables > Actions.
-#    - Hapus secrets lama jika ada (`AZURE_CREDENTIALS`, `ACR_USERNAME`, `ACR_PASSWORD`).
-#    - Tambahkan secrets berikut:
+# 3. TENTANG "KUDU URL ERROR":
+#    - Jika muncul error ini, berarti file Publish Profile Anda terpotong atau salah.
+#    - SOLUSI: Download ulang file .publishsettings, buka di Notepad, tekan CTRL+A, 
+#      CTRL+C, lalu simpan ke GitHub Secret. Jangan copy manual pakai mouse.
 #
-#    - `BACKEND_PUBLISH_PROFILE`:  Tempel seluruh konten dari file `.publishsettings` milik App Service **backend**.
-#    - `FRONTEND_PUBLISH_PROFILE`: Tempel seluruh konten dari file `.publishsettings` milik App Service **frontend**.
-#
-#    - `BACKEND_APP_SERVICE_NAME`:  Nama App Service backend Anda (contoh: "sustainatrack-backend").
-#    - `FRONTEND_APP_SERVICE_NAME`: Nama App Service frontend Anda (contoh: "sustainatrack-frontend").
-#
-#    - `MONGODB_URI_AZURE`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASSWORD`, `GEMINI_API_KEY`: Secrets ini tetap dibutuhkan untuk konfigurasi aplikasi backend Anda.
-#
-# Dengan cara ini, workflow menjadi lebih ringkas. Anda tidak perlu lagi login ke Azure atau ACR secara eksplisit.
+# 4. TENTANG ACR (AZURE CONTAINER REGISTRY) vs LOCAL IMAGES:
+#    - Saat ini kita menggunakan LOCAL IMAGES (images: sustainatrack-be:sha).
+#    - UNTUK PRODUCTION: Disarankan migrasi ke ACR agar image tersimpan aman di cloud 
+#      Azure dan proses deploy lebih cepat (Azure tidak perlu tarik image dari runner).
+#    - Jika ingin migrasi ke ACR, Anda butuh: `azure/docker-login` dan `azure/login`.
+################################################################################
