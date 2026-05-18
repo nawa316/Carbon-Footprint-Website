@@ -1,0 +1,119 @@
+# .github/workflows/deploy-azure.yml
+
+name: Build and Deploy to Azure using Publish Profile
+
+# Workflow ini akan berjalan setiap kali ada push ke branch 'main'
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Memungkinkan Anda menjalankan workflow ini secara manual dari tab Actions di GitHub
+
+jobs:
+  ###################################
+  # JOB 1: BUILD & DEPLOY BACKEND   #
+  ###################################
+  build-and-deploy-backend:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Build Backend Image'
+        run: |
+          docker build -f backend/Dockerfile -t sustainatrack-be:${{ github.sha }} ./backend
+
+      - name: 'Deploy Backend to Azure App Service'
+        uses: azure/webapps-deploy@v2
+        with:
+          # Nama App Service tujuan
+          app-name: ${{ secrets.BACKEND_APP_SERVICE_NAME }}
+
+          # Kredensial didapat dari Publish Profile
+          publish-profile: ${{ secrets.BACKEND_PUBLISH_PROFILE }}
+
+          # Nama image yang sudah di-build secara lokal di runner
+          images: 'sustainatrack-be:${{ github.sha }}'
+
+          # Mengatur environment variables untuk aplikasi backend
+          app-settings-json: |
+            [
+                { "name": "MONGO_URI", "value": "${{ secrets.MONGO_URI }}", "slotSetting": false },
+                { "name": "JWT_SECRET", "value": "${{ secrets.JWT_SECRET }}", "slotSetting": false },
+                { "name": "EMAIL_USER", "value": "${{ secrets.EMAIL_USER }}", "slotSetting": false },
+                { "name": "EMAIL_PASSWORD", "value": "${{ secrets.EMAIL_PASSWORD }}", "slotSetting": false },
+                { "name": "GEMINI_API_KEY", "value": "${{ secrets.GEMINI_API_KEY }}", "slotSetting": false },
+                { "name": "WEBSITES_PORT", "value": "8080", "slotSetting": false }
+            ]
+
+  ####################################
+  # JOB 2: BUILD & DEPLOY FRONTEND   #
+  ####################################
+  build-and-deploy-frontend:
+    runs-on: ubuntu-latest
+    environment: production
+    # Job ini butuh backend selesai deploy untuk mendapatkan URL-nya
+    needs: build-and-deploy-backend
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@v4
+
+      - name: 'Build Frontend Image'
+        run: |
+          # URL backend diambil dari nama App Service backend.
+          # Pola URL App Service adalah https://<nama-app-service>.azurewebsites.net
+          BACKEND_URL="https://$(echo ${{ secrets.BACKEND_APP_SERVICE_NAME }}).azurewebsites.net"
+          echo "Backend URL for Frontend Build: $BACKEND_URL"
+
+          docker build 
+            -f frontend/Dockerfile 
+            --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL 
+            -t sustainatrack-fe:${{ github.sha }} 
+            ./frontend
+
+      - name: 'Deploy Frontend to Azure App Service'
+        uses: azure/webapps-deploy@v2
+        with:
+          # Nama App Service tujuan
+          app-name: ${{ secrets.FRONTEND_APP_SERVICE_NAME }}
+
+          # Kredensial didapat dari Publish Profile
+          publish-profile: ${{ secrets.FRONTEND_PUBLISH_PROFILE }}
+
+          # Nama image yang sudah di-build secara lokal di runner
+          images: 'sustainatrack-fe:${{ github.sha }}'
+          
+          # Mengatur port yang digunakan oleh Nginx di dalam kontainer frontend
+          app-settings-json: |
+            [
+                { "name": "WEBSITES_PORT", "value": "8080", "slotSetting": false }
+            ]
+---
+# CATATAN PENTING & PERSIAPAN (Metode Publish Profile)
+#
+# 1. Buat Dua Azure App Service:
+#    - Sama seperti sebelumnya, pastikan Anda punya dua App Service (satu untuk backend, satu untuk frontend) dengan tipe "Docker Container".
+#
+# 2. Dapatkan Publish Profile untuk setiap App Service:
+#    - Buka halaman App Service Anda di Portal Azure.
+#    - Di bagian "Overview", klik "Get publish profile".
+#    - Ini akan mengunduh sebuah file `.publishsettings`. Buka file ini dengan teks editor.
+#    - Salin **seluruh konten** file tersebut.
+#
+# 3. Siapkan GitHub Secrets:
+#    - Di repositori GitHub, pergi ke Settings > Secrets and variables > Actions.
+#    - Hapus secrets lama jika ada (`AZURE_CREDENTIALS`, `ACR_USERNAME`, `ACR_PASSWORD`).
+#    - Tambahkan secrets berikut:
+#
+#    - `BACKEND_PUBLISH_PROFILE`:  Tempel seluruh konten dari file `.publishsettings` milik App Service **backend**.
+#    - `FRONTEND_PUBLISH_PROFILE`: Tempel seluruh konten dari file `.publishsettings` milik App Service **frontend**.
+#
+#    - `BACKEND_APP_SERVICE_NAME`:  Nama App Service backend Anda (contoh: "sustainatrack-backend").
+#    - `FRONTEND_APP_SERVICE_NAME`: Nama App Service frontend Anda (contoh: "sustainatrack-frontend").
+#
+#    - `MONGO_URI`, `JWT_SECRET`, `EMAIL_USER`, `EMAIL_PASSWORD`, `GEMINI_API_KEY`: Secrets ini tetap dibutuhkan untuk konfigurasi aplikasi backend Anda.
+#
+# Dengan cara ini, workflow menjadi lebih ringkas. Anda tidak perlu lagi login ke Azure atau ACR secara eksplisit.
