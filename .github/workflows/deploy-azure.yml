@@ -25,17 +25,6 @@ jobs:
         run: |
           docker build -f backend/Dockerfile -t sustainatrack-be:${{ github.sha }} ./backend
 
-      - name: 'Set Backend App Settings'
-        uses: azure/appservice-settings@v1
-        with:
-          app-name: ${{ secrets.BACKEND_APP_SERVICE_NAME }}
-          publish-profile: ${{ secrets.BACKEND_PUBLISH_PROFILE }}
-          app-settings-json: |
-            [
-                { "name": "MONGODB_URI_AZURE", "value": "${{ secrets.MONGODB_URI_AZURE }}", "slotSetting": false },
-                { "name": "WEBSITES_PORT", "value": "8080", "slotSetting": false }
-            ]
-
       - name: 'Deploy Backend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
@@ -80,12 +69,6 @@ jobs:
 
           # Nama image yang sudah di-build secara lokal di runner
           images: 'sustainatrack-fe:${{ github.sha }}'
-          
-          # Mengatur port yang digunakan oleh Nginx di dalam kontainer frontend
-          app-settings-json: |
-            [
-                { "name": "WEBSITES_PORT", "value": "8080", "slotSetting": false }
-            ]
 ---
 # CATATAN PENTING & PERSIAPAN (Metode Publish Profile)
 #
