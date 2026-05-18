@@ -46,17 +46,10 @@ jobs:
 
       - name: 'Build Frontend Image'
         run: |
-          # URL backend diambil dari nama App Service backend.
-          # Pola URL App Service adalah https://<nama-app-service>.azurewebsites.net
-          # GANTI 'nama-app-service-backend' di bawah ini dengan nama asli App Service backend Anda di Azure
-          BACKEND_URL="https://nama-app-service-backend.azurewebsites.net"
+          BACKEND_URL="https://carbonbackendservice-becqhefhhbcqbkef.indonesiacentral-01.azurewebsites.net"
           echo "Backend URL for Frontend Build: $BACKEND_URL"
 
-          docker build 
-            -f frontend/Dockerfile 
-            --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL 
-            -t sustainatrack-fe:${{ github.sha }} 
-            ./frontend
+          docker build -f frontend/Dockerfile --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL -t sustainatrack-fe:${{ github.sha }} ./frontend
 
       - name: 'Deploy Frontend to Azure App Service'
         uses: azure/webapps-deploy@v2
