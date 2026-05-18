@@ -28,7 +28,6 @@ jobs:
       - name: 'Deploy Backend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.BACKEND_APP_SERVICE_NAME }}
           publish-profile: ${{ secrets.BACKEND_PUBLISH_PROFILE }}
           images: 'sustainatrack-be:${{ github.sha }}'
 
@@ -49,7 +48,8 @@ jobs:
         run: |
           # URL backend diambil dari nama App Service backend.
           # Pola URL App Service adalah https://<nama-app-service>.azurewebsites.net
-          BACKEND_URL="https://$(echo ${{ secrets.BACKEND_APP_SERVICE_NAME }}).azurewebsites.net"
+          # GANTI 'nama-app-service-backend' di bawah ini dengan nama asli App Service backend Anda di Azure
+          BACKEND_URL="https://nama-app-service-backend.azurewebsites.net"
           echo "Backend URL for Frontend Build: $BACKEND_URL"
 
           docker build 
@@ -61,13 +61,7 @@ jobs:
       - name: 'Deploy Frontend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
-          # Nama App Service tujuan
-          app-name: ${{ secrets.FRONTEND_APP_SERVICE_NAME }}
-
-          # Kredensial didapat dari Publish Profile
           publish-profile: ${{ secrets.FRONTEND_PUBLISH_PROFILE }}
-
-          # Nama image yang sudah di-build secara lokal di runner
           images: 'sustainatrack-fe:${{ github.sha }}'
 ---
 # CATATAN PENTING & PERSIAPAN (Metode Publish Profile)
