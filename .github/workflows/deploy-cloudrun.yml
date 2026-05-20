@@ -45,6 +45,7 @@ jobs:
           IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.BACKEND_IMAGE_NAME }}"
           gcloud run deploy ${{ env.BACKEND_SERVICE_NAME }} \
             --image="$IMAGE:$GITHUB_SHA" \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
             --platform=managed \
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
@@ -88,6 +89,7 @@ jobs:
           IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.FRONTEND_IMAGE_NAME }}"
           gcloud run deploy ${{ env.FRONTEND_SERVICE_NAME }} \
             --image="$IMAGE:$GITHUB_SHA" \
+            --project=${{ secrets.GCP_PROJECT_ID }} \
             --platform=managed \
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
