@@ -36,6 +36,14 @@ const UserSchema = new mongoose.Schema(
       default: 0,
     },
     badges: [String],
+    location: {
+      type: String,
+      default: '',
+    },
+    carbonGoal: {
+      type: String,
+      default: '',
+    },
   },
   { timestamps: true }
 );

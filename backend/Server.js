@@ -4,6 +4,7 @@ import authRoute from './routes/authRoute.js';
 import footprintRoute from './routes/footprintRoute.js';
 import gamificationRoute from './routes/gamificationRoute.js';
 import billRoute from './routes/bill.js';
+import userRoute from './routes/userRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -27,6 +28,7 @@ const start = async () => {
     app.use(express.json());
 
     app.use('/api/auth', authRoute);
+    app.use('/api/user', userRoute);
     app.use('/api/footprint', footprintRoute);
     app.use('/api/gamification', gamificationRoute);
     app.use('/api/bill', billRoute);

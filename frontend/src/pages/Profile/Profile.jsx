@@ -1,37 +1,5 @@
-// import React from "react";
-// import { MapPin, Linkedin, User, Signature } from "lucide-react";
-// import "./Profile.css";
-
-// const Profile = () => {
-//   return (
-//     <div className="profile-sidebar">
-//       <div className="profile-section">
-//         <div className="avatar">
-//           <User size={40} />
-//         </div>
-//         <h2>Aadhya Shah</h2>
-//         <div className="info-item">
-//             <Signature size={18} />
-//             <span>shahaadhya21</span>
-//           </div>
-//         <div className="info">
-//           <div className="info-item">
-//             <MapPin size={18} />
-//             <span>Location</span>
-//           </div>
-//           <div className="info-item">
-//             <Linkedin size={18} />
-//             <span>LinkedIn</span>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Profile;
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   MapPin,
   Linkedin,
@@ -46,6 +14,10 @@ import {
   Car,
   Lightbulb,
   ShoppingBag,
+  Edit2,
+  Save,
+  X,
+  Target
 } from 'lucide-react';
 import {
   AreaChart,
@@ -58,9 +30,12 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import Swal from 'sweetalert2';
 import './Profile.css';
+import { apiUrl } from '../../config/api';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [expandedSections, setExpandedSections] = useState({
     personalInfo: true,
@@ -69,54 +44,58 @@ const Profile = () => {
     achievements: true,
   });
 
-  // Sample data for charts
-  const weeklyData = [
-    { name: 'Mon', carbon: 24 },
-    { name: 'Tue', carbon: 18 },
-    { name: 'Wed', carbon: 32 },
-    { name: 'Thu', carbon: 27 },
-    { name: 'Fri', carbon: 19 },
-    { name: 'Sat', carbon: 15 },
-    { name: 'Sun', carbon: 12 },
-  ];
+  const [user, setUser] = useState(null);
+  const [footprints, setFootprints] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const monthlyData = [
-    { name: 'Week 1', carbon: 85 },
-    { name: 'Week 2', carbon: 102 },
-    { name: 'Week 3', carbon: 92 },
-    { name: 'Week 4', carbon: 76 },
-  ];
+  // Edit Profile State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({ name: '', location: '', carbonGoal: '' });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const categoryData = [
-    { name: 'Transport', value: 35, fill: '#83c5be' },
-    { name: 'Food', value: 25, fill: '#e29578' },
-    { name: 'Energy', value: 22, fill: '#006d77' },
-    { name: 'Shopping', value: 18, fill: '#ffddd2' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/auth');
+          return;
+        }
 
-  const achievements = [
-    {
-      id: 1,
-      title: 'First Milestone',
-      description: 'Reduced carbon footprint by 10%',
-      date: 'March 15, 2025',
-      icon: <Leaf size={24} />,
-    },
-    {
-      id: 2,
-      title: 'Eco-transport',
-      description: 'Used public transport for a week',
-      date: 'March 20, 2025',
-      icon: <Car size={24} />,
-    },
-    {
-      id: 3,
-      title: 'Energy Saver',
-      description: 'Reduced home energy usage by 15%',
-      date: 'March 28, 2025',
-      icon: <Lightbulb size={24} />,
-    },
-  ];
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const [profileRes, historyRes] = await Promise.all([
+          fetch(apiUrl('/api/user/profile'), { headers }),
+          fetch(apiUrl('/api/footprint/history'), { headers }),
+        ]);
+
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          setUser(profileData);
+          setEditFormData({
+            name: profileData.name || '',
+            location: profileData.location || '',
+            carbonGoal: profileData.carbonGoal || '',
+          });
+        } else {
+          // Token might be invalid
+          localStorage.removeItem('token');
+          navigate('/auth');
+        }
+
+        if (historyRes.ok) {
+          const historyData = await historyRes.json();
+          setFootprints(historyData.footprints || []);
+        }
+      } catch (err) {
+        console.error('Error fetching profile data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
 
   const toggleSection = (section) => {
     setExpandedSections({
@@ -125,6 +104,97 @@ const Profile = () => {
     });
   };
 
+  const handleEditChange = (e) => {
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(apiUrl('/api/user/profile'), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(editFormData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setUser(data.user);
+        setIsEditing(false);
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Profile updated successfully',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+      } else {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'error',
+          title: data.message || 'Update failed',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'error',
+        title: 'An error occurred',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+
+  if (loading) {
+    return <div className="profile-page" style={{ justifyContent: 'center', alignItems: 'center' }}><h2>Loading Profile...</h2></div>;
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  // Derived Data
+  const today = new Date();
+  const todayFootprint = footprints.find((f) => {
+    const fDate = new Date(f.date);
+    return (
+      fDate.getDate() === today.getDate() &&
+      fDate.getMonth() === today.getMonth() &&
+      fDate.getFullYear() === today.getFullYear()
+    );
+  }) || { transport: 0, food: 0, energy: 0, shopping: 0, total: 0 };
+
+  const historyData = footprints.slice(-7).map((f) => ({
+    name: new Date(f.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+    carbon: f.total,
+  }));
+
+  const categoryData = [
+    { name: 'Transport', value: todayFootprint.transport, fill: '#83c5be' },
+    { name: 'Food', value: todayFootprint.food, fill: '#e29578' },
+    { name: 'Energy', value: todayFootprint.energy, fill: '#006d77' },
+    { name: 'Shopping', value: todayFootprint.shopping, fill: '#ffddd2' },
+  ];
+
+  const badges = user.badges && user.badges.length > 0 ? user.badges : [];
+
   return (
     <div className="profile-page">
       <div className="profile-sidebar">
@@ -132,10 +202,10 @@ const Profile = () => {
           <div className="avatar">
             <User size={40} />
           </div>
-          <h2>Aadhya Shah</h2>
+          <h2>{user.name}</h2>
           <div className="username-container">
             <Signature size={18} />
-            <span className="username">shahaadhya21</span>
+            <span className="username">@{user.name.toLowerCase().replace(/\s/g, '')}</span>
           </div>
 
           <div className="tab-navigation">
@@ -161,21 +231,19 @@ const Profile = () => {
 
           <div className="info">
             <div className="info-item">
-              <MapPin size={18} />
-              <span>Mumbai, India</span>
-            </div>
-            <div className="info-item">
               <Mail size={18} />
-              <span>aadhya.shah@example.com</span>
+              <span>{user.email}</span>
             </div>
+            {user.location && (
+              <div className="info-item">
+                <MapPin size={18} />
+                <span>{user.location}</span>
+              </div>
+            )}
             <div className="info-item">
-              <Linkedin size={18} />
-              <span>linkedin.com/in/aadhyashah</span>
+              <Calendar size={18} />
+              <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
             </div>
-            {/* <div className="info-item">
-              <Github size={18} />
-              <span>github.com/aadhyashah</span>
-            </div> */}
           </div>
         </div>
       </div>
@@ -184,10 +252,10 @@ const Profile = () => {
         <div className="section-header">
           <h2>Carbon Footprint Dashboard</h2>
           <div className="eco-score">
-            <div className="score-circle">82</div>
+            <div className="score-circle">{user.points || 0}</div>
             <div className="score-text">
-              <h3>Eco Score</h3>
-              <p>Great progress!</p>
+              <h3>Eco Points</h3>
+              <p>Keep it up!</p>
             </div>
           </div>
         </div>
@@ -196,42 +264,77 @@ const Profile = () => {
           <>
             {/* Personal Info Section */}
             <div className="card">
-              <div className="card-header" onClick={() => toggleSection('personalInfo')}>
+              <div className="card-header" onClick={() => !isEditing && toggleSection('personalInfo')} style={{ cursor: isEditing ? 'default' : 'pointer' }}>
                 <h3>Personal Information</h3>
-                {expandedSections.personalInfo ? (
-                  <ChevronUp size={20} />
-                ) : (
-                  <ChevronDown size={20} />
-                )}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  {!isEditing && (
+                    <button className="edit-btn" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
+                      <Edit2 size={16} /> Edit
+                    </button>
+                  )}
+                  {expandedSections.personalInfo ? (
+                    <ChevronUp size={20} style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleSection('personalInfo'); }} />
+                  ) : (
+                    <ChevronDown size={20} style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleSection('personalInfo'); }} />
+                  )}
+                </div>
               </div>
               {expandedSections.personalInfo && (
                 <div className="card-content">
-                  <div className="personal-info-grid">
-                    <div className="info-group">
-                      <label>Full Name</label>
-                      <p>Aadhya Shah</p>
+                  {isEditing ? (
+                    <form className="edit-profile-form" onSubmit={handleEditSubmit}>
+                      <div className="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="name" value={editFormData.name} onChange={handleEditChange} required />
+                      </div>
+                      <div className="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" value={editFormData.location} onChange={handleEditChange} placeholder="e.g. Jakarta, Indonesia" />
+                      </div>
+                      <div className="form-group">
+                        <label>Carbon Goal</label>
+                        <input type="text" name="carbonGoal" value={editFormData.carbonGoal} onChange={handleEditChange} placeholder="e.g. Reduce by 30% this year" />
+                      </div>
+                      <div className="form-actions">
+                        <button type="submit" disabled={isSaving} className="save-btn">
+                          <Save size={16} /> {isSaving ? 'Saving...' : 'Save Changes'}
+                        </button>
+                        <button type="button" onClick={() => {
+                            setIsEditing(false);
+                            setEditFormData({ name: user.name || '', location: user.location || '', carbonGoal: user.carbonGoal || '' });
+                          }} className="cancel-btn">
+                          <X size={16} /> Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="personal-info-grid">
+                      <div className="info-group">
+                        <label>Full Name</label>
+                        <p>{user.name}</p>
+                      </div>
+                      <div className="info-group">
+                        <label>Email</label>
+                        <p>{user.email}</p>
+                      </div>
+                      <div className="info-group">
+                        <label>Location</label>
+                        <p>{user.location || '-'}</p>
+                      </div>
+                      <div className="info-group">
+                        <label>Carbon Goal</label>
+                        <p>{user.carbonGoal || '-'}</p>
+                      </div>
+                      <div className="info-group">
+                        <label>Account Status</label>
+                        <p>{user.verified ? 'Verified' : 'Pending Verification'}</p>
+                      </div>
+                      <div className="info-group">
+                        <label>Member Since</label>
+                        <p>{new Date(user.createdAt).toLocaleDateString()}</p>
+                      </div>
                     </div>
-                    <div className="info-group">
-                      <label>Username</label>
-                      <p>shahaadhya21</p>
-                    </div>
-                    <div className="info-group">
-                      <label>Email</label>
-                      <p>aadhya.shah@example.com</p>
-                    </div>
-                    <div className="info-group">
-                      <label>Location</label>
-                      <p>Mumbai, India</p>
-                    </div>
-                    <div className="info-group">
-                      <label>Member Since</label>
-                      <p>January 15, 2025</p>
-                    </div>
-                    <div className="info-group">
-                      <label>Carbon Goals</label>
-                      <p>Reduce by 30% this year</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>
@@ -248,26 +351,22 @@ const Profile = () => {
                     <div className="stat-card">
                       <Car size={24} />
                       <h4>Transport</h4>
-                      <p className="stat-value">2.5 kg CO₂</p>
-                      <p className="stat-change decrease">-15% vs. avg</p>
+                      <p className="stat-value">{todayFootprint.transport.toFixed(2)} kg CO₂</p>
                     </div>
                     <div className="stat-card">
                       <Utensils size={24} />
                       <h4>Food</h4>
-                      <p className="stat-value">1.8 kg CO₂</p>
-                      <p className="stat-change decrease">-8% vs. avg</p>
+                      <p className="stat-value">{todayFootprint.food.toFixed(2)} kg CO₂</p>
                     </div>
                     <div className="stat-card">
                       <Lightbulb size={24} />
                       <h4>Energy</h4>
-                      <p className="stat-value">3.2 kg CO₂</p>
-                      <p className="stat-change increase">+5% vs. avg</p>
+                      <p className="stat-value">{todayFootprint.energy.toFixed(2)} kg CO₂</p>
                     </div>
                     <div className="stat-card">
                       <ShoppingBag size={24} />
                       <h4>Shopping</h4>
-                      <p className="stat-value">0.8 kg CO₂</p>
-                      <p className="stat-change decrease">-12% vs. avg</p>
+                      <p className="stat-value">{todayFootprint.shopping.toFixed(2)} kg CO₂</p>
                     </div>
                   </div>
                   <div className="today-chart">
@@ -277,7 +376,7 @@ const Profile = () => {
                         <BarChart data={categoryData} layout="vertical">
                           <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                           <XAxis type="number" />
-                          <YAxis dataKey="name" type="category" />
+                          <YAxis dataKey="name" type="category" width={80} />
                           <Tooltip />
                           <Bar dataKey="value" nameKey="name" />
                         </BarChart>
@@ -300,34 +399,24 @@ const Profile = () => {
               </div>
               {expandedSections.historyStats && (
                 <div className="card-content">
-                  <div className="history-chart">
-                    <h4>Weekly Trend</h4>
-                    <div className="chart-container">
-                      <ResponsiveContainer width="100%" height={200}>
-                        <AreaChart data={weeklyData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Area type="monotone" dataKey="carbon" stroke="#006d77" fill="#83c5be" />
-                        </AreaChart>
-                      </ResponsiveContainer>
+                  {historyData.length > 0 ? (
+                    <div className="history-chart">
+                      <h4>Recent Trend</h4>
+                      <div className="chart-container">
+                        <ResponsiveContainer width="100%" height={250}>
+                          <AreaChart data={historyData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="carbon" stroke="#006d77" fill="#83c5be" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  </div>
-                  <div className="history-chart">
-                    <h4>Monthly Trend</h4>
-                    <div className="chart-container">
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar dataKey="carbon" fill="#e29578" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
+                  ) : (
+                    <p>No history available yet. Calculate your footprint today!</p>
+                  )}
                 </div>
               )}
             </div>
@@ -345,19 +434,19 @@ const Profile = () => {
               {expandedSections.achievements && (
                 <div className="card-content">
                   <div className="achievements-list">
-                    {achievements.map((achievement) => (
-                      <div className="achievement-item" key={achievement.id}>
-                        <div className="achievement-icon">{achievement.icon}</div>
-                        <div className="achievement-content">
-                          <h4>{achievement.title}</h4>
-                          <p>{achievement.description}</p>
-                          <div className="achievement-date">
-                            <Calendar size={14} />
-                            <span>{achievement.date}</span>
+                    {badges.length > 0 ? (
+                      badges.map((badge, index) => (
+                        <div className="achievement-item" key={index}>
+                          <div className="achievement-icon"><Leaf size={24} /></div>
+                          <div className="achievement-content">
+                            <h4>{badge}</h4>
+                            <p>Earned for your eco-friendly actions.</p>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p>No achievements yet. Keep tracking to earn badges!</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -368,14 +457,43 @@ const Profile = () => {
         {activeTab === 'stats' && (
           <div className="detailed-stats">
             <h3>Detailed Statistics</h3>
-            <p>More detailed statistics view goes here...</p>
+            {historyData.length > 0 ? (
+              <div className="history-chart">
+                <div className="chart-container">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={historyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="carbon" fill="#e29578" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            ) : (
+              <p>No stats available.</p>
+            )}
           </div>
         )}
 
         {activeTab === 'achievements' && (
           <div className="all-achievements">
             <h3>All Achievements</h3>
-            <p>Complete achievements view goes here...</p>
+            <div className="achievements-list">
+              {badges.length > 0 ? (
+                badges.map((badge, index) => (
+                  <div className="achievement-item" key={index}>
+                    <div className="achievement-icon"><Leaf size={24} /></div>
+                    <div className="achievement-content">
+                      <h4>{badge}</h4>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No achievements yet.</p>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -224,3 +224,19 @@ export const footprintCalculate = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 };
+
+// 🟢 Get User Footprint History
+export const getUserFootprint = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const footprints = await Footprint.find({ userId }).sort({ date: 1 });
+    res.json({ success: true, footprints });
+  } catch (error) {
+    console.error('Error in getUserFootprint:', error);
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};

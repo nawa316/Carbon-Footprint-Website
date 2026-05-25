@@ -1,11 +1,10 @@
 import express from 'express';
 import authenticateToken from '../middleware/authMiddleware.js';
 import guestRateLimiter from '../middleware/rateLimitMiddleware.js';
-import { guestFootprintCalculate, footprintCalculate } from '../controllers/FootprintController.js';
+import { guestFootprintCalculate, footprintCalculate, getUserFootprint } from '../controllers/FootprintController.js';
 const router = express.Router();
 
-// router.get('/:userId', getUserFootprint);
-// router.get('/total/:userId', getTotalFootprint);
+router.get('/history', authenticateToken, getUserFootprint);
 router.post('/calculate', authenticateToken, async (req, res) => {
   if (req.user) {
     // Handle logged-in user's footprint calculation
