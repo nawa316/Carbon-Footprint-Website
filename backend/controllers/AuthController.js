@@ -7,12 +7,14 @@ import { sendVerificationMail, sendResetPasswordMail } from '../config/nodemaile
 import dotenv from 'dotenv';
 dotenv.config();
 
+const FRONTEND_BASE_URL = (process.env.FRONTEND_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+
 
 const register = async (req, res) => {
     const { name, email, password } = req.body;
     const ip = req.ip;
     if (!name || !email || !password) {
-        return res.json({ success: false, message: "Missing Details" });
+        return res.status(400).json({ success: false, message: "Missing Details" });
     }
 
     try {
@@ -63,7 +65,7 @@ const register = async (req, res) => {
         }
         await user.save();
         
-        res.status(201).json({ message: "User registered succesfully." });
+        res.status(201).json({ success: true, message: "User registered successfully." });
     }
     catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -110,16 +112,10 @@ const verifyEmail = async (req, res) => {
         user.verificationToken = null;
         await user.save();
 
-        res.status(200).json({
-            success: true,
-            message: "Email verified successfully"
-        });
+        return res.redirect(`${FRONTEND_BASE_URL}/auth?verified=true`);
 
     } catch (error) {
-        return res.status(500).json({
-            error: "Invalid Token",
-            message: error.message
-        })
+        return res.redirect(`${FRONTEND_BASE_URL}/auth?verified=false`);
     }
 };
 

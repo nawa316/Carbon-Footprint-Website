@@ -6,13 +6,74 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
   workflow_dispatch:
 
 jobs:
   ###################################
-  # JOB 1: BUILD & DEPLOY BACKEND   #
+  # JOB 0: DETECT CHANGES           #
+  ###################################
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.resolve.outputs.backend }}
+      frontend: ${{ steps.resolve.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+      - name: Resolve outputs (force true on manual dispatch)
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=${{ steps.filter.outputs.backend }}" >> $GITHUB_OUTPUT
+            echo "frontend=${{ steps.filter.outputs.frontend }}" >> $GITHUB_OUTPUT
+          fi
+
+  ###################################
+  # JOB 1: LINT & FORMAT CHECK      #
+  ###################################
+  lint:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Lint & Format Backend'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run format:check
+          npm run lint
+
+      - name: 'Lint & Format Frontend'
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run format:check
+          npm run lint
+
+  ###################################
+  # JOB 2: BUILD & DEPLOY BACKEND   #
   ###################################
   build-and-deploy-backend:
+    needs: [detect-changes, lint]
+    if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     environment: production
 
@@ -32,12 +93,17 @@ jobs:
           package: ./backend
 
   ####################################
-  # JOB 2: BUILD & DEPLOY FRONTEND   #
+  # JOB 3: BUILD & DEPLOY FRONTEND   #
   ####################################
   build-and-deploy-frontend:
+    needs: [detect-changes, lint, build-and-deploy-backend]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.frontend == 'true' &&
+      (needs.build-and-deploy-backend.result == 'success' || needs.build-and-deploy-backend.result == 'skipped') &&
+      needs.lint.result == 'success'
     runs-on: ubuntu-latest
     environment: production
-    needs: build-and-deploy-backend
 
     steps:
       - name: 'Checkout code'

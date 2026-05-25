@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
 
 env:
   REGION: asia-southeast1
@@ -13,12 +16,50 @@ env:
   FRONTEND_IMAGE_NAME: sustainatrack-fe
 
 jobs:
-  deploy:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
 
+  lint:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Lint & Format Backend'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run format:check
+          npm run lint
+
+      - name: 'Lint & Format Frontend'
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run format:check
+          npm run lint
+
+  deploy-backend:
+    needs: [detect-changes, lint]
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,14 +92,14 @@ jobs:
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }}"
+            --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }},FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}"
 
   deploy-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

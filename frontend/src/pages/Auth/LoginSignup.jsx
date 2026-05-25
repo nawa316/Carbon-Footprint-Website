@@ -202,7 +202,7 @@
 
 
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import "./LoginSignup.css";
 import { apiUrl } from "../../config/api";
@@ -211,6 +211,34 @@ const AuthPage = () => {
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   const [signupData, setSignupData] = useState({ name: "", email: "", password: "" });
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verified = params.get("verified");
+    if (verified === "true") {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: "Email verified! You can now log in.",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+      window.history.replaceState({}, "", "/auth");
+    } else if (verified === "false") {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Verification link is invalid or expired.",
+        showConfirmButton: false,
+        timer: 4000,
+        timerProgressBar: true,
+      });
+      window.history.replaceState({}, "", "/auth");
+    }
+  }, []);
 
   const togglePanel = () => {
     setIsRightPanelActive(!isRightPanelActive);

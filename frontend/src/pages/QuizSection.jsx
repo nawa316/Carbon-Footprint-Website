@@ -299,11 +299,13 @@ const QuizSection = ({
     storedValue instanceof File ? storedValue : null
   );
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadProcessed, setUploadProcessed] = useState(false);
 
   useEffect(() => {
     if (uploadField && uploadedFile) {
       const objectUrl = URL.createObjectURL(uploadedFile);
       setPreviewUrl(objectUrl);
+      setUploadProcessed(false);
       return () => URL.revokeObjectURL(objectUrl);
     }
   }, [uploadedFile, uploadField]);
@@ -431,6 +433,7 @@ const QuizSection = ({
       // You can log or handle the data here
       console.log("Verification result:", data);
       updateUserData("energy", { electricityBill: data.extractedData.units });
+      setUploadProcessed(true);
     } catch (error) {
       console.error("Verification failed:", error);
       Swal.fire({
@@ -458,6 +461,22 @@ const QuizSection = ({
 
   console.log("Saved:", category, field, uploadField ? uploadedFile : selectedOption );
 };
+
+  const handleNextClick = () => {
+    if (uploadField && uploadedFile && !uploadProcessed) {
+      Swal.fire({
+        toast: true,
+        position: "top",
+        icon: "warning",
+        title: "⚠️ Click 'Calculate & Add' to process your bill first!",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
+      return;
+    }
+    if (onNext) onNext();
+  };
 
 
   return (
@@ -509,10 +528,11 @@ const QuizSection = ({
                 <span
                   className="remove-icon"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the click from reaching the parent
-                    setUploadedFile(null); // Remove the file
-                    setPreviewUrl(null); // Clear the preview URL
-                    updateUserData(category, { [field]: null }); // Update the context state
+                    e.stopPropagation();
+                    setUploadedFile(null);
+                    setPreviewUrl(null);
+                    setUploadProcessed(false);
+                    updateUserData(category, { [field]: null });
                   }}
                 >
                   &times;
@@ -552,7 +572,7 @@ const QuizSection = ({
         <button onClick={handleCalculate} className="calculate-btn">
            Calculate & Add
          </button>
-        <button onClick={onNext} className="next-btn">Next</button>
+        <button onClick={handleNextClick} className="next-btn">Next</button>
       </div>
     </div>
   );
