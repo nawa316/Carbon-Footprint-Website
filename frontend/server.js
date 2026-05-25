@@ -9,6 +9,8 @@ const __dirname = path.dirname(__filename);
 const buildDir = path.join(__dirname, 'build');
 const indexFile = path.join(buildDir, 'index.html');
 
+//test deployment
+
 const contentTypes = new Map([
   ['.html', 'text/html; charset=utf-8'],
   ['.js', 'application/javascript; charset=utf-8'],
