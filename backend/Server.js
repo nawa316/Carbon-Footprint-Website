@@ -17,8 +17,14 @@ const start = async () => {
     await connectDB();
 
     // Middleware
+    app.use(
+      cors({
+        origin: '*', // Allow all origins
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+      })
+    );
     app.use(express.json());
-    app.use(cors());
 
     app.use('/api/auth', authRoute);
     app.use('/api/footprint', footprintRoute);
@@ -31,7 +37,8 @@ const start = async () => {
     });
 
     app.listen(PORT, () => {
-      console.log(`server is running on port ${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`CORS allowed for all origins`);
     });
   } catch (err) {
     console.error('Failed to start server:', err);
