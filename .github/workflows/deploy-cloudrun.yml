@@ -97,7 +97,7 @@ jobs:
             --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }},FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}"
 
   deploy-frontend:
-    needs: detect-changes
+    needs: [detect-changes, lint]
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     permissions:
