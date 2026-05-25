@@ -1,0 +1,36 @@
+{
+  "name": "carbon-footprint-website",
+  "version": "1.0.0",
+  "description": "Everyday choices—like how we travel, eat, and use energy—contribute to climate change, yet most people lack tools to understand their personal impact. This project introduces a simple, quiz-based Carbon Footprint Calculator that helps users track emissions, get personalized tips, and build sustainable habits through a gamified experience.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nawa316/Carbon-Footprint-Website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nawa316/Carbon-Footprint-Website/issues"
+  },
+  "homepage": "https://github.com/nawa316/Carbon-Footprint-Website#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.5"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx}": [
+      "cd frontend && npx eslint --fix",
+      "cd frontend && npx prettier --write"
+    ],
+    "backend/**/*.js": [
+      "cd backend && npx eslint --fix",
+      "cd backend && npx prettier --write"
+    ]
+  }
+}
