@@ -13,26 +13,31 @@ const PORT = process.env.PORT || 5000;
 // Initialize Express app
 const app = express();
 
-connectDB();
+const start = async () => {
+    try {
+        await connectDB();
 
-// Middleware
-app.use(express.json());
-app.use(cors());
+        // Middleware
+        app.use(express.json());
+        app.use(cors());
 
+        app.use("/api/auth", authRoute);
+        app.use("/api/footprint", footprintRoute);
+        app.use("/api/gamification", gamificationRoute);
+        app.use("/api/bill", billRoute);
 
-app.use("/api/auth", authRoute);
-app.use("/api/footprint", footprintRoute);
-app.use("/api/gamification", gamificationRoute);
-app.use("/api/bill", billRoute);
+        // test route
+        app.get("/", (req, res) => {
+            res.json({ status: "ok" });
+        });
 
-    
-// test route 
+        app.listen(PORT, () => {
+            console.log(`server is running on port ${PORT}`);
+        });
+    } catch (err) {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    }
+};
 
-app.get("/", (req, res) => {
-    res.json({ status: "ok" });
-});
-
-// start server
-app.listen(PORT, () => {
-    console.log(`server is running on port ${PORT}`);
-});
+start();

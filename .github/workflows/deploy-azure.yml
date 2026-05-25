@@ -20,22 +20,16 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
 
-      - name: 'Build Backend Image'
-        run: |
-          # Build image locally menggunakan Docker
-          docker build -f backend/Dockerfile -t sustainatrack-be:${{ github.sha }} ./backend
+      - name: 'Install Backend Dependencies'
+        working-directory: backend
+        run: npm ci --omit=dev
 
       - name: 'Deploy Backend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
-          # Menggunakan nama App Service eksplisit dari Secret (Contoh: carbonbackendservice)
           app-name: ${{ secrets.BACKEND_APP_SERVICE_NAME }}
-          
-          # Publish Profile berisi kredensial dan URL Kudu untuk deployment
           publish-profile: ${{ secrets.BACKEND_PUBLISH_PROFILE }}
-          
-          # Menggunakan image yang baru saja di-build di runner
-          images: 'sustainatrack-be:${{ github.sha }}'
+          package: ./backend
 
   ####################################
   # JOB 2: BUILD & DEPLOY FRONTEND   #
@@ -49,54 +43,22 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
 
-      - name: 'Build Frontend Image'
+      - name: 'Build Frontend App'
         run: |
-          # MENGHINDARI HARDCODED URL:
-          # Kita susun URL Backend berdasarkan nama App Service-nya.
-          # Jika di Azure namanya 'carbonbackendservice', maka URL-nya:
-          # https://carbonbackendservice.azurewebsites.net
-          
           BACKEND_URL="https://${{ secrets.BACKEND_APP_SERVICE_NAME }}.azurewebsites.net"
           echo "Connecting Frontend to Backend at: $BACKEND_URL"
 
-          docker build \
-            -f frontend/Dockerfile \
-            --build-arg REACT_APP_API_BASE_URL=$BACKEND_URL \
-            -t sustainatrack-fe:${{ github.sha }} \
-            ./frontend
+          cd frontend
+          REACT_APP_API_BASE_URL="$BACKEND_URL" npm ci
+          REACT_APP_API_BASE_URL="$BACKEND_URL" npm run build
+          rm -rf deploy
+          mkdir -p deploy/build
+          cp package.json server.js deploy/
+          cp -R build/. deploy/build/
 
       - name: 'Deploy Frontend to Azure App Service'
         uses: azure/webapps-deploy@v2
         with:
-          # Nama App Service frontend eksplisit (Contoh: carbonfrontendservice)
           app-name: ${{ secrets.FRONTEND_APP_SERVICE_NAME }}
           publish-profile: ${{ secrets.FRONTEND_PUBLISH_PROFILE }}
-          images: 'sustainatrack-fe:${{ github.sha }}'
-
-################################################################################
-# PANDUAN PERSIAPAN PRODUCTION (WAJIB DIBACA)
-################################################################################
-#
-# 1. NAMA APP SERVICE (PERMANEN):
-#    - Buat App Service di Azure dengan nama permanen (tanpa random suffix).
-#    - Contoh: `carbonbackendservice` dan `carbonfrontendservice`.
-#    - Pastikan keduanya bertipe "Web App for Containers" (Linux).
-#
-# 2. GITHUB SECRETS (UPDATE SEMUA INI):
-#    - `BACKEND_APP_SERVICE_NAME`: Isi dengan `carbonbackendservice`
-#    - `FRONTEND_APP_SERVICE_NAME`: Isi dengan `carbonfrontendservice`
-#    - `BACKEND_PUBLISH_PROFILE`: Download dari Portal Azure (App Service Backend).
-#    - `FRONTEND_PUBLISH_PROFILE`: Download dari Portal Azure (App Service Frontend).
-#    - `MONGODB_URI_AZURE`: Link database MongoDB Anda.
-#
-# 3. TENTANG "KUDU URL ERROR":
-#    - Jika muncul error ini, berarti file Publish Profile Anda terpotong atau salah.
-#    - SOLUSI: Download ulang file .publishsettings, buka di Notepad, tekan CTRL+A, 
-#      CTRL+C, lalu simpan ke GitHub Secret. Jangan copy manual pakai mouse.
-#
-# 4. TENTANG ACR (AZURE CONTAINER REGISTRY) vs LOCAL IMAGES:
-#    - Saat ini kita menggunakan LOCAL IMAGES (images: sustainatrack-be:sha).
-#    - UNTUK PRODUCTION: Disarankan migrasi ke ACR agar image tersimpan aman di cloud 
-#      Azure dan proses deploy lebih cepat (Azure tidak perlu tarik image dari runner).
-#    - Jika ingin migrasi ke ACR, Anda butuh: `azure/docker-login` dan `azure/login`.
-################################################################################
+          package: ./frontend/deploy
