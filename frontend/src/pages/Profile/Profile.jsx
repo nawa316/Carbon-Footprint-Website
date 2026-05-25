@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MapPin,
-  Linkedin,
   User,
   Signature,
   Mail,
@@ -17,7 +16,6 @@ import {
   Edit2,
   Save,
   X,
-  Target,
 } from 'lucide-react';
 import {
   AreaChart,
