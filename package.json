@@ -25,12 +25,12 @@
   },
   "lint-staged": {
     "frontend/**/*.{js,jsx,ts,tsx}": [
-      "cd frontend && npx eslint --fix",
-      "cd frontend && npx prettier --write"
+      "bash -c 'cd frontend && npx eslint --fix --no-ignore \"$@\"' --",
+      "bash -c 'cd frontend && npx prettier --write \"$@\"' --"
     ],
     "backend/**/*.js": [
-      "cd backend && npx eslint --fix",
-      "cd backend && npx prettier --write"
+      "bash -c 'cd backend && npx eslint --fix --no-ignore \"$@\"' --",
+      "bash -c 'cd backend && npx prettier --write \"$@\"' --"
     ]
   }
 }
