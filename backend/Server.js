@@ -1,43 +1,42 @@
 import express from 'express';
 import connectDB from './config/ConnectDB.js';
 import authRoute from './routes/authRoute.js';
-import footprintRoute from './routes/footprintRoute.js'
-import gamificationRoute from './routes/gamificationRoute.js'
-import billRoute from './routes/bill.js'
+import footprintRoute from './routes/footprintRoute.js';
+import gamificationRoute from './routes/gamificationRoute.js';
+import billRoute from './routes/bill.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
-
 // Initialize Express app
 const app = express();
 
 const start = async () => {
-    try {
-        await connectDB();
+  try {
+    await connectDB();
 
-        // Middleware
-        app.use(express.json());
-        app.use(cors());
+    // Middleware
+    app.use(express.json());
+    app.use(cors());
 
-        app.use("/api/auth", authRoute);
-        app.use("/api/footprint", footprintRoute);
-        app.use("/api/gamification", gamificationRoute);
-        app.use("/api/bill", billRoute);
+    app.use('/api/auth', authRoute);
+    app.use('/api/footprint', footprintRoute);
+    app.use('/api/gamification', gamificationRoute);
+    app.use('/api/bill', billRoute);
 
-        // test route
-        app.get("/", (req, res) => {
-            res.json({ status: "ok" });
-        });
+    // test route
+    app.get('/', (req, res) => {
+      res.json({ status: 'ok' });
+    });
 
-        app.listen(PORT, () => {
-            console.log(`server is running on port ${PORT}`);
-        });
-    } catch (err) {
-        console.error('Failed to start server:', err);
-        process.exit(1);
-    }
+    app.listen(PORT, () => {
+      console.log(`server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  }
 };
 
 start();

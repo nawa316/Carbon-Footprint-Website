@@ -21,7 +21,7 @@ const contentTypes = new Map([
   ['.jpeg', 'image/jpeg'],
   ['.webp', 'image/webp'],
   ['.avif', 'image/avif'],
-  ['.txt', 'text/plain; charset=utf-8']
+  ['.txt', 'text/plain; charset=utf-8'],
 ]);
 
 const safeResolve = (requestPath) => {

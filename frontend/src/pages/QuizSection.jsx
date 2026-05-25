@@ -58,7 +58,6 @@
 
 // export default QuizSection;
 
-
 // import React, { useState, useEffect } from "react";
 // import Swal from "sweetalert2"; // Import SweetAlert2
 // import "./QuizSection.css";
@@ -156,24 +155,20 @@
 
 // export default QuizSection;
 
-
-
-
-
 // import React, { useState, useEffect } from "react";
 // import Swal from "sweetalert2";
 // import { useUserInput } from "../context/UserInputContext";
 // import "./QuizSection.css";
 
-// const QuizSection = ({ 
-//   icon: Icon, 
-//   title, 
-//   question, 
-//   options, 
+// const QuizSection = ({
+//   icon: Icon,
+//   title,
+//   question,
+//   options,
 //   category = "", // Ensure category is defined
 //   field = "", // Ensure field is defined
-//   onNext, 
-//   onPrevious 
+//   onNext,
+//   onPrevious
 // }) => {
 //   const { userData, updateUserData } = useUserInput();
 
@@ -239,7 +234,7 @@
 //             <label className="option" key={index}>
 //               <input
 //                 type="radio"
-//                 name={`quiz-${category}`} 
+//                 name={`quiz-${category}`}
 //                 value={option.value}
 //                 checked={selectedOption === option.value}
 //                 onChange={handleOptionChange}
@@ -272,28 +267,26 @@
 
 // export default QuizSection;
 
+import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
+import { useUserInput } from '../context/UserInputContext';
+import './QuizSection.css';
+import { apiUrl } from '../config/api';
 
-
-import React, { useState, useEffect } from "react";
-import Swal from "sweetalert2";
-import { useUserInput } from "../context/UserInputContext";
-import "./QuizSection.css";
-import { apiUrl } from "../config/api";
-
-const QuizSection = ({ 
-  icon: Icon, 
-  title, 
-  question, 
-  options, 
-  category = "", 
-  field = "", 
-  uploadField = false, 
-  onNext, 
-  onPrevious 
+const QuizSection = ({
+  icon: Icon,
+  title,
+  question,
+  options,
+  category = '',
+  field = '',
+  uploadField = false,
+  onNext,
+  onPrevious,
 }) => {
   const { userData, updateUserData } = useUserInput();
 
-  const storedValue = userData[category]?.[field] || "";
+  const storedValue = userData[category]?.[field] || '';
   const [selectedOption, setSelectedOption] = useState(storedValue);
   const [uploadedFile, setUploadedFile] = useState(
     storedValue instanceof File ? storedValue : null
@@ -312,7 +305,7 @@ const QuizSection = ({
 
   useEffect(() => {
     if (!uploadField) {
-      setSelectedOption(storedValue || "");
+      setSelectedOption(storedValue || '');
     }
   }, [question, storedValue, uploadField]);
 
@@ -330,9 +323,9 @@ const QuizSection = ({
 
       Swal.fire({
         toast: true,
-        position: "top",
-        icon: "success",
-        title: "✅ File uploaded successfully!",
+        position: 'top',
+        icon: 'success',
+        title: '✅ File uploaded successfully!',
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
@@ -381,93 +374,92 @@ const QuizSection = ({
   // };
 
   const handleCalculate = async () => {
-    const token = localStorage.getItem("token"); // Retrieve token
-  
+    const token = localStorage.getItem('token'); // Retrieve token
+
     if (uploadField) {
-    if (!uploadedFile) {
+      if (!uploadedFile) {
+        Swal.fire({
+          toast: true,
+          position: 'top',
+          icon: 'warning',
+          title: '⚠️ Please upload your electricity bill!',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        });
+        return;
+      }
+    } else if (!selectedOption) {
       Swal.fire({
         toast: true,
-        position: "top",
-        icon: "warning",
-        title: "⚠️ Please upload your electricity bill!",
+        position: 'top',
+        icon: 'warning',
+        title: '⚠️ Please select or enter a value before continuing!',
         showConfirmButton: false,
         timer: 2000,
         timerProgressBar: true,
       });
       return;
     }
-  } else if (!selectedOption) {
+
+    // If category is Electricity, call the verify API
+    if (uploadField && uploadedFile) {
+      try {
+        const formData = new FormData();
+        formData.append('bill', uploadedFile); // Assuming this is the numeric input
+        formData.append('category', 'Electricity');
+
+        console.log('Sending data:', formData);
+
+        const headers = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+
+        const res = await fetch(apiUrl('/api/bill/verify'), {
+          method: 'POST',
+          headers: headers,
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        // You can log or handle the data here
+        console.log('Verification result:', data);
+        updateUserData('energy', { electricityBill: data.extractedData.units });
+        setUploadProcessed(true);
+      } catch (error) {
+        console.error('Verification failed:', error);
+        Swal.fire({
+          toast: true,
+          position: 'top',
+          icon: 'error',
+          title: '❌ Verification failed. Please try again.',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        });
+        return;
+      }
+    }
+
     Swal.fire({
       toast: true,
-      position: "top",
-      icon: "warning",
-      title: "⚠️ Please select or enter a value before continuing!",
+      position: 'top',
+      icon: 'success',
+      title: '✅ Your response has been added successfully!',
       showConfirmButton: false,
       timer: 2000,
       timerProgressBar: true,
     });
-    return;
-  }
 
-  // If category is Electricity, call the verify API
-  if (  uploadField && uploadedFile) {
-    try {
-      const formData = new FormData();
-      formData.append("bill", uploadedFile); // Assuming this is the numeric input
-      formData.append("category", "Electricity");
-
-      console.log("Sending data:", formData);
-
-      const headers = {};
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const res = await fetch(apiUrl("/api/bill/verify"), {
-        method: "POST",
-        headers: headers,
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      
-      // You can log or handle the data here
-      console.log("Verification result:", data);
-      updateUserData("energy", { electricityBill: data.extractedData.units });
-      setUploadProcessed(true);
-    } catch (error) {
-      console.error("Verification failed:", error);
-      Swal.fire({
-        toast: true,
-        position: "top",
-        icon: "error",
-        title: "❌ Verification failed. Please try again.",
-        showConfirmButton: false,
-        timer: 2000,
-        timerProgressBar: true,
-      });
-      return;
-    }
-  }
-
-  Swal.fire({
-    toast: true,
-    position: "top",
-    icon: "success",
-    title: "✅ Your response has been added successfully!",
-    showConfirmButton: false,
-    timer: 2000,
-    timerProgressBar: true,
-  });
-
-  console.log("Saved:", category, field, uploadField ? uploadedFile : selectedOption );
-};
+    console.log('Saved:', category, field, uploadField ? uploadedFile : selectedOption);
+  };
 
   const handleNextClick = () => {
     if (uploadField && uploadedFile && !uploadProcessed) {
       Swal.fire({
         toast: true,
-        position: "top",
-        icon: "warning",
+        position: 'top',
+        icon: 'warning',
         title: "⚠️ Click 'Calculate & Add' to process your bill first!",
         showConfirmButton: false,
         timer: 2500,
@@ -477,7 +469,6 @@ const QuizSection = ({
     }
     if (onNext) onNext();
   };
-
 
   return (
     <div className="quiz-content">
@@ -496,35 +487,28 @@ const QuizSection = ({
           onDrop={(e) => {
             e.preventDefault();
             const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith("image/")) {
+            if (file && file.type.startsWith('image/')) {
               handleFileChange({ target: { files: [file] } });
             }
           }}
-          onClick={() =>
-            !previewUrl && document.getElementById("fileInput").click()
-          }
+          onClick={() => !previewUrl && document.getElementById('fileInput').click()}
         >
           <input
             id="fileInput"
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            style={{ display: "none" }}
+            style={{ display: 'none' }}
           />
 
           {!previewUrl ? (
             <p className="drop-text">
-              Drag & drop your electricity bill here or{" "}
-              <span className="browse">browse</span>
+              Drag & drop your electricity bill here or <span className="browse">browse</span>
             </p>
           ) : (
             <div className="preview-container">
               <div className="image-wrapper">
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="preview-image"
-                />
+                <img src={previewUrl} alt="Preview" className="preview-image" />
                 <span
                   className="remove-icon"
                   onClick={(e) => {
@@ -568,11 +552,17 @@ const QuizSection = ({
       )}
 
       <div className="quiz-buttons">
-        {onPrevious && <button onClick={onPrevious} className="prev-btn">Previous</button>}
+        {onPrevious && (
+          <button onClick={onPrevious} className="prev-btn">
+            Previous
+          </button>
+        )}
         <button onClick={handleCalculate} className="calculate-btn">
-           Calculate & Add
-         </button>
-        <button onClick={handleNextClick} className="next-btn">Next</button>
+          Calculate & Add
+        </button>
+        <button onClick={handleNextClick} className="next-btn">
+          Next
+        </button>
       </div>
     </div>
   );

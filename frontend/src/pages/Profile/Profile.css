@@ -49,9 +49,6 @@
   font-size: 14px;
 } */
 
-
-
-
 /* Profile Page Layout */
 .profile-page {
   display: flex;
@@ -370,11 +367,13 @@
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
-.today-chart, .history-chart {
+.today-chart,
+.history-chart {
   margin-bottom: 25px;
 }
 
-.today-chart h4, .history-chart h4 {
+.today-chart h4,
+.history-chart h4 {
   margin: 0 0 10px 0;
   color: #4a7c59;
   font-size: 16px;
@@ -442,12 +441,12 @@
   .profile-sidebar {
     width: 240px;
   }
-  
+
   .profile-content {
     margin-left: 240px;
     width: calc(100% - 240px);
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -457,7 +456,7 @@
   .profile-page {
     flex-direction: column;
   }
-  
+
   .profile-sidebar {
     width: 100%;
     height: auto;
@@ -465,17 +464,17 @@
     padding: 20px;
     min-height: auto;
   }
-  
+
   .profile-content {
     margin-left: 0;
     padding: 20px;
     width: 100%;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .personal-info-grid {
     grid-template-columns: 1fr;
   }
@@ -485,12 +484,12 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .eco-score {
     flex-direction: column;
     padding: 15px;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;

@@ -31,45 +31,42 @@
 
 // export default Profile;
 
-
-
-
-import React, { useState } from "react";
-import { 
-  MapPin, 
-  Linkedin, 
-  User, 
-  Signature, 
-  Mail, 
-  Leaf, 
+import React, { useState } from 'react';
+import {
+  MapPin,
+  Linkedin,
+  User,
+  Signature,
+  Mail,
+  Leaf,
   Calendar,
   ChevronDown,
   ChevronUp,
   Utensils,
   Car,
   Lightbulb,
-  ShoppingBag
-} from "lucide-react";
-import { 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer
-} from "recharts";
-import "./Profile.css";
+  ShoppingBag,
+} from 'lucide-react';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import './Profile.css';
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState('overview');
   const [expandedSections, setExpandedSections] = useState({
     personalInfo: true,
     todayStats: true,
     historyStats: true,
-    achievements: true
+    achievements: true,
   });
 
   // Sample data for charts
@@ -98,15 +95,33 @@ const Profile = () => {
   ];
 
   const achievements = [
-    { id: 1, title: "First Milestone", description: "Reduced carbon footprint by 10%", date: "March 15, 2025", icon: <Leaf size={24} /> },
-    { id: 2, title: "Eco-transport", description: "Used public transport for a week", date: "March 20, 2025", icon: <Car size={24} /> },
-    { id: 3, title: "Energy Saver", description: "Reduced home energy usage by 15%", date: "March 28, 2025", icon: <Lightbulb size={24} /> },
+    {
+      id: 1,
+      title: 'First Milestone',
+      description: 'Reduced carbon footprint by 10%',
+      date: 'March 15, 2025',
+      icon: <Leaf size={24} />,
+    },
+    {
+      id: 2,
+      title: 'Eco-transport',
+      description: 'Used public transport for a week',
+      date: 'March 20, 2025',
+      icon: <Car size={24} />,
+    },
+    {
+      id: 3,
+      title: 'Energy Saver',
+      description: 'Reduced home energy usage by 15%',
+      date: 'March 28, 2025',
+      icon: <Lightbulb size={24} />,
+    },
   ];
 
   const toggleSection = (section) => {
     setExpandedSections({
       ...expandedSections,
-      [section]: !expandedSections[section]
+      [section]: !expandedSections[section],
     });
   };
 
@@ -122,23 +137,23 @@ const Profile = () => {
             <Signature size={18} />
             <span className="username">shahaadhya21</span>
           </div>
-          
+
           <div className="tab-navigation">
-            <button 
-              className={activeTab === "overview" ? "active" : ""} 
-              onClick={() => setActiveTab("overview")}
+            <button
+              className={activeTab === 'overview' ? 'active' : ''}
+              onClick={() => setActiveTab('overview')}
             >
               Overview
             </button>
-            <button 
-              className={activeTab === "stats" ? "active" : ""} 
-              onClick={() => setActiveTab("stats")}
+            <button
+              className={activeTab === 'stats' ? 'active' : ''}
+              onClick={() => setActiveTab('stats')}
             >
               Statistics
             </button>
-            <button 
-              className={activeTab === "achievements" ? "active" : ""} 
-              onClick={() => setActiveTab("achievements")}
+            <button
+              className={activeTab === 'achievements' ? 'active' : ''}
+              onClick={() => setActiveTab('achievements')}
             >
               Achievements
             </button>
@@ -177,13 +192,17 @@ const Profile = () => {
           </div>
         </div>
 
-        {activeTab === "overview" && (
+        {activeTab === 'overview' && (
           <>
             {/* Personal Info Section */}
             <div className="card">
-              <div className="card-header" onClick={() => toggleSection("personalInfo")}>
+              <div className="card-header" onClick={() => toggleSection('personalInfo')}>
                 <h3>Personal Information</h3>
-                {expandedSections.personalInfo ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {expandedSections.personalInfo ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
               </div>
               {expandedSections.personalInfo && (
                 <div className="card-content">
@@ -219,7 +238,7 @@ const Profile = () => {
 
             {/* Today's Statistics */}
             <div className="card">
-              <div className="card-header" onClick={() => toggleSection("todayStats")}>
+              <div className="card-header" onClick={() => toggleSection('todayStats')}>
                 <h3>Today's Carbon Footprint</h3>
                 {expandedSections.todayStats ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
               </div>
@@ -271,9 +290,13 @@ const Profile = () => {
 
             {/* History Chart */}
             <div className="card">
-              <div className="card-header" onClick={() => toggleSection("historyStats")}>
+              <div className="card-header" onClick={() => toggleSection('historyStats')}>
                 <h3>Carbon Footprint History</h3>
-                {expandedSections.historyStats ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {expandedSections.historyStats ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
               </div>
               {expandedSections.historyStats && (
                 <div className="card-content">
@@ -311,18 +334,20 @@ const Profile = () => {
 
             {/* Achievements Section */}
             <div className="card">
-              <div className="card-header" onClick={() => toggleSection("achievements")}>
+              <div className="card-header" onClick={() => toggleSection('achievements')}>
                 <h3>Recent Achievements</h3>
-                {expandedSections.achievements ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {expandedSections.achievements ? (
+                  <ChevronUp size={20} />
+                ) : (
+                  <ChevronDown size={20} />
+                )}
               </div>
               {expandedSections.achievements && (
                 <div className="card-content">
                   <div className="achievements-list">
-                    {achievements.map(achievement => (
+                    {achievements.map((achievement) => (
                       <div className="achievement-item" key={achievement.id}>
-                        <div className="achievement-icon">
-                          {achievement.icon}
-                        </div>
+                        <div className="achievement-icon">{achievement.icon}</div>
                         <div className="achievement-content">
                           <h4>{achievement.title}</h4>
                           <p>{achievement.description}</p>
@@ -340,14 +365,14 @@ const Profile = () => {
           </>
         )}
 
-        {activeTab === "stats" && (
+        {activeTab === 'stats' && (
           <div className="detailed-stats">
             <h3>Detailed Statistics</h3>
             <p>More detailed statistics view goes here...</p>
           </div>
         )}
 
-        {activeTab === "achievements" && (
+        {activeTab === 'achievements' && (
           <div className="all-achievements">
             <h3>All Achievements</h3>
             <p>Complete achievements view goes here...</p>
