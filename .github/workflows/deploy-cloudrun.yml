@@ -43,6 +43,7 @@ jobs:
         working-directory: backend
         run: |
           npm ci
+          npm audit
           npm run format:check
           npm run lint
 
@@ -51,6 +52,7 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
+          npm audit
           npm run format:check
           npm run lint
 
