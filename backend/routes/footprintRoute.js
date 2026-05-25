@@ -1,7 +1,11 @@
 import express from 'express';
 import authenticateToken from '../middleware/authMiddleware.js';
 import guestRateLimiter from '../middleware/rateLimitMiddleware.js';
-import { guestFootprintCalculate, footprintCalculate, getUserFootprint } from '../controllers/FootprintController.js';
+import {
+  guestFootprintCalculate,
+  footprintCalculate,
+  getUserFootprint,
+} from '../controllers/FootprintController.js';
 const router = express.Router();
 
 router.get('/history', authenticateToken, getUserFootprint);

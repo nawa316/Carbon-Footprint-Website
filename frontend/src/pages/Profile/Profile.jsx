@@ -17,7 +17,7 @@ import {
   Edit2,
   Save,
   X,
-  Target
+  Target,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -117,9 +117,9 @@ const Profile = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editFormData)
+        body: JSON.stringify(editFormData),
       });
       const data = await response.json();
       if (response.ok) {
@@ -161,9 +161,12 @@ const Profile = () => {
     }
   };
 
-
   if (loading) {
-    return <div className="profile-page" style={{ justifyContent: 'center', alignItems: 'center' }}><h2>Loading Profile...</h2></div>;
+    return (
+      <div className="profile-page" style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <h2>Loading Profile...</h2>
+      </div>
+    );
   }
 
   if (!user) {
@@ -264,18 +267,42 @@ const Profile = () => {
           <>
             {/* Personal Info Section */}
             <div className="card">
-              <div className="card-header" onClick={() => !isEditing && toggleSection('personalInfo')} style={{ cursor: isEditing ? 'default' : 'pointer' }}>
+              <div
+                className="card-header"
+                onClick={() => !isEditing && toggleSection('personalInfo')}
+                style={{ cursor: isEditing ? 'default' : 'pointer' }}
+              >
                 <h3>Personal Information</h3>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   {!isEditing && (
-                    <button className="edit-btn" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
+                    <button
+                      className="edit-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEditing(true);
+                      }}
+                    >
                       <Edit2 size={16} /> Edit
                     </button>
                   )}
                   {expandedSections.personalInfo ? (
-                    <ChevronUp size={20} style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleSection('personalInfo'); }} />
+                    <ChevronUp
+                      size={20}
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSection('personalInfo');
+                      }}
+                    />
                   ) : (
-                    <ChevronDown size={20} style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleSection('personalInfo'); }} />
+                    <ChevronDown
+                      size={20}
+                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSection('personalInfo');
+                      }}
+                    />
                   )}
                 </div>
               </div>
@@ -285,24 +312,50 @@ const Profile = () => {
                     <form className="edit-profile-form" onSubmit={handleEditSubmit}>
                       <div className="form-group">
                         <label>Full Name</label>
-                        <input type="text" name="name" value={editFormData.name} onChange={handleEditChange} required />
+                        <input
+                          type="text"
+                          name="name"
+                          value={editFormData.name}
+                          onChange={handleEditChange}
+                          required
+                        />
                       </div>
                       <div className="form-group">
                         <label>Location</label>
-                        <input type="text" name="location" value={editFormData.location} onChange={handleEditChange} placeholder="e.g. Jakarta, Indonesia" />
+                        <input
+                          type="text"
+                          name="location"
+                          value={editFormData.location}
+                          onChange={handleEditChange}
+                          placeholder="e.g. Jakarta, Indonesia"
+                        />
                       </div>
                       <div className="form-group">
                         <label>Carbon Goal</label>
-                        <input type="text" name="carbonGoal" value={editFormData.carbonGoal} onChange={handleEditChange} placeholder="e.g. Reduce by 30% this year" />
+                        <input
+                          type="text"
+                          name="carbonGoal"
+                          value={editFormData.carbonGoal}
+                          onChange={handleEditChange}
+                          placeholder="e.g. Reduce by 30% this year"
+                        />
                       </div>
                       <div className="form-actions">
                         <button type="submit" disabled={isSaving} className="save-btn">
                           <Save size={16} /> {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
-                        <button type="button" onClick={() => {
+                        <button
+                          type="button"
+                          onClick={() => {
                             setIsEditing(false);
-                            setEditFormData({ name: user.name || '', location: user.location || '', carbonGoal: user.carbonGoal || '' });
-                          }} className="cancel-btn">
+                            setEditFormData({
+                              name: user.name || '',
+                              location: user.location || '',
+                              carbonGoal: user.carbonGoal || '',
+                            });
+                          }}
+                          className="cancel-btn"
+                        >
                           <X size={16} /> Cancel
                         </button>
                       </div>
@@ -409,7 +462,12 @@ const Profile = () => {
                             <XAxis dataKey="name" />
                             <YAxis />
                             <Tooltip />
-                            <Area type="monotone" dataKey="carbon" stroke="#006d77" fill="#83c5be" />
+                            <Area
+                              type="monotone"
+                              dataKey="carbon"
+                              stroke="#006d77"
+                              fill="#83c5be"
+                            />
                           </AreaChart>
                         </ResponsiveContainer>
                       </div>
@@ -437,7 +495,9 @@ const Profile = () => {
                     {badges.length > 0 ? (
                       badges.map((badge, index) => (
                         <div className="achievement-item" key={index}>
-                          <div className="achievement-icon"><Leaf size={24} /></div>
+                          <div className="achievement-icon">
+                            <Leaf size={24} />
+                          </div>
                           <div className="achievement-content">
                             <h4>{badge}</h4>
                             <p>Earned for your eco-friendly actions.</p>
@@ -484,7 +544,9 @@ const Profile = () => {
               {badges.length > 0 ? (
                 badges.map((badge, index) => (
                   <div className="achievement-item" key={index}>
-                    <div className="achievement-icon"><Leaf size={24} /></div>
+                    <div className="achievement-icon">
+                      <Leaf size={24} />
+                    </div>
                     <div className="achievement-content">
                       <h4>{badge}</h4>
                     </div>
