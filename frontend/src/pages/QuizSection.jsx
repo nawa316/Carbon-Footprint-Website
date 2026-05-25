@@ -380,7 +380,6 @@ const QuizSection = ({
 
   const handleCalculate = async () => {
     const token = localStorage.getItem("token"); // Retrieve token
-    if (!token) return console.log("User not logged in.");
   
     if (uploadField) {
     if (!uploadedFile) {
@@ -417,11 +416,12 @@ const QuizSection = ({
 
       console.log("Sending data:", formData);
 
+      const headers = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+
       const res = await fetch(apiUrl("/api/bill/verify"), {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`, // Replace with actual token
-        },
+        headers: headers,
         body: formData,
       });
 

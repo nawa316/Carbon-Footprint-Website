@@ -203,6 +203,7 @@
 
 
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 import "./LoginSignup.css";
 import { apiUrl } from "../../config/api";
 
@@ -235,34 +236,44 @@ const AuthPage = () => {
         body: JSON.stringify(signupData),
       });
       const data = await response.json();
-      alert(data.message || "Signup successful!");
+      
+      if (response.ok && data.success !== false) {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: data.message || "Signup successful! Please log in.",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+        setSignupData({ name: "", email: "", password: "" }); // Clear form
+        setIsRightPanelActive(false); // Switch to login panel
+      } else {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "error",
+          title: data.message || "Signup failed.",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
+      }
     } catch (error) {
-      alert("Error signing up. Try again.");
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Error signing up. Try again.",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
     }
   };
 
   // Handle Login
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch("http://localhost:5000/api/auth/login", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(loginData),
-  //     });
-  //     const data = await response.json();
-  //     if (response.ok) {
-  //       alert("Login successful!");
-  //       // Save token to local storage if needed
-  //       localStorage.setItem("token", data.token);
-  //     } else {
-  //       alert(data.message || "Login failed.");
-  //     }
-  //   } catch (error) {
-  //     alert("Error logging in. Try again.");
-  //   }
-  // };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -273,20 +284,46 @@ const AuthPage = () => {
       });
       const data = await response.json();
       
-      if (response.ok) {
-        alert("Login successful!");
+      if (response.ok && data.success !== false) {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "success",
+          title: "Login successful!",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+        });
         localStorage.setItem("token", data.token);
   
         // Retrieve stored URL or default to home
         const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/";
         localStorage.removeItem("redirectAfterLogin"); // Clear after use
         
-        window.location.href = redirectUrl; // Redirect to the stored URL
+        setTimeout(() => {
+          window.location.href = redirectUrl; // Redirect to the stored URL
+        }, 1000); // Give user time to see the success message
       } else {
-        alert(data.message || "Login failed.");
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "error",
+          title: data.message || "Login failed.",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+        });
       }
     } catch (error) {
-      alert("Error logging in. Try again.");
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "error",
+        title: "Error logging in. Try again.",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+      });
     }
   };
   

@@ -143,8 +143,8 @@ const calculateEmissions = ({
         }
         if (purchaseCategory === "electronics") {
             console.log("Here electroniscs");
-            shoppingEmissions += (EMISSION_FACTORS.shopping.small_electronics[electronicsReplacement] );
-            shoppingEmissions += (EMISSION_FACTORS.shopping.medium_electronics[mediumElectronics] );
+            shoppingEmissions += (EMISSION_FACTORS.shopping.small_electronics[electronicsReplacement] || 0);
+            shoppingEmissions += (EMISSION_FACTORS.shopping.medium_electronics[mediumElectronics] || 0);
         }
         if (purchaseCategory === "home_goods") {
             shoppingEmissions += (EMISSION_FACTORS.shopping.home_furniture[homeFurniture] || 0);

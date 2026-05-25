@@ -144,19 +144,15 @@ export const guestFootprintCalculate = async (req, res) => {
 export const footprintCalculate = async (req, res) => {
     try {
         const { transport, energy, food, shopping } = req.body;
-        const token = req.headers.authorization?.split(" ")[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findById({ 
-                    _id: decoded.id
-        });
+        const userId = req.user?.id; // req.user is set by authenticateToken
+        
+        const user = await User.findById(userId);
         if (!user) { 
             return res.status(404).json({
                 success: false,
-                message: "Invalid token"
+                message: "User not found"
             });
         }
-        const userId = user?._id; // Ensure user is authenticated
-        if (!userId) return res.status(401).json({ error: "User authentication required" });
 
         // Extract and ensure default values
         const mode = transport?.mode || "walking";

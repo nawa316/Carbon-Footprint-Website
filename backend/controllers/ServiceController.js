@@ -5,7 +5,7 @@ import Bill from "../models/Bill.js";
 export const verifyElectricityBill = async (req, res) => {
     try {
         const file = req.file;
-        const userId = req.user?._id;
+        const userId = req.user?.id;
 
         if (!file) {
         return res.status(400).json({ error: "Invalid file or user input" });

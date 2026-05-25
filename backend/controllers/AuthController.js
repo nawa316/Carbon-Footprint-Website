@@ -9,7 +9,8 @@ dotenv.config();
 
 
 const register = async (req, res) => {
-    const { name, email, password, ip } = req.body;
+    const { name, email, password } = req.body;
+    const ip = req.ip;
     if (!name || !email || !password) {
         return res.json({ success: false, message: "Missing Details" });
     }
@@ -37,21 +38,30 @@ const register = async (req, res) => {
             const footprint = new Footprint({
                 userId: user._id,
                 transport: guestData.transportEmissions,
-                energy: guestData.energyEmissions,
+                energy: guestData.electricityEmissions,
                 food: guestData.foodEmissions,
                 shopping: guestData.shoppingEmissions,
                 total: guestData.total
             });
             await footprint.save();
 
+            let pointsEarned = Math.max(0, Math.min(100, 100 - ((guestData.total / 800) * 100)));
+            user.points = (user.points || 0) + Math.round(pointsEarned);
+
             delete GuestCache[ip];
         }
 
         // Code to send verification mail on register step
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
         user.verificationToken = token;
+        
+        try {
+            await sendVerificationMail(email, token);
+        } catch (mailError) {
+            console.error("Mail error:", mailError);
+            user.verified = true; // Auto-verify if email fails so user is not locked out
+        }
         await user.save();
-        await sendVerificationMail(email, token);
         
         res.status(201).json({ message: "User registered succesfully." });
     }
@@ -75,7 +85,7 @@ const login = async (req, res) => {
         if (!isValidPassword) {
             return res.status(400).json({ message: "Invalid email or password" });
         }
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret');
         
         return res.json({ success: true, token , user, message: `Login successful Token : ${token}` });
     } catch (error) {
@@ -86,7 +96,7 @@ const login = async (req, res) => {
 const verifyEmail = async (req, res) => { 
     try {
         const { token } = req.params;
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
         const user = await User.findById({ 
             _id: decoded.id
         });
@@ -122,7 +132,7 @@ const forgotPassword = async (req, res) => {
 
 
 
-        const resetToken = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const resetToken = jwt.sign({ email }, process.env.JWT_SECRET || 'secret', { expiresIn: "1h" });
         user.resetPasswordToken = resetToken;
 
         await user.save();
@@ -140,7 +150,7 @@ const resetPassword = async (req, res) => {
     const { password } = req.body;
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
         const user = await User.findOne({ email: decoded.email });
         if (!user) {
             return res.status(404).json({ error: "User not found", message: error.message });
