@@ -7,10 +7,10 @@ export const getLeaderboard = async (req, res) => {
       .populate('userId', 'username name') // Mengambil field username & name dari collection User
       .sort({ total: 1 }) // 1 berarti Ascending (terkecil ke terbesar)
       .limit(10);
-      
+
     res.status(200).json({ success: true, data: leaderboardData });
   } catch (error) {
-    console.error("Error saat mengambil leaderboard:", error);
-    res.status(500).json({ success: false, message: "Terjadi kesalahan pada server" });
+    console.error('Error saat mengambil leaderboard:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan pada server' });
   }
 };
