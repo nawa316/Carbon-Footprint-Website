@@ -7,6 +7,7 @@ import billRoute from './routes/bill.js';
 import userRoute from './routes/userRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import leaderboardRoutes from './routes/leaderboardRoutes.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
@@ -34,6 +35,7 @@ const start = async () => {
     app.use('/api/footprint', footprintRoute);
     app.use('/api/gamification', gamificationRoute);
     app.use('/api/bill', billRoute);
+    app.use('/api/leaderboard', leaderboardRoutes);
 
     // test route
     app.get('/', (req, res) => {

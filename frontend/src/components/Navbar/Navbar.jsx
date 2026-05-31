@@ -399,6 +399,11 @@ const Navbar = () => {
           <Link to="/redeem">
             <li className={location.pathname === '/redeem' ? 'active' : ''}>Redeem</li>
           </Link>
+          
+          {/* Menu Leaderboard Baru */}
+          <Link to="/leaderboard">
+            <li className={location.pathname === '/leaderboard' ? 'active' : ''}>Leaderboard</li>
+          </Link>
 
           {/* More Dropdown */}
           <div className={`dropdown-container ${showMoreDropdown ? 'active' : ''}`} ref={moreRef}>
