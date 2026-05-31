@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import '../components/Navbar.css'; // Opsional, sesuaikan jika ada CSS khusus
+import '../components/Navbar/Navbar.css';
+import { apiUrl } from '../config/api';
 
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
@@ -8,15 +9,22 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        // Ganti URL ini jika base URL backend kamu berbeda (misal port 5000 atau 8080)
-        const response = await fetch('http://localhost:5000/api/leaderboard');
+        const response = await fetch(apiUrl('/api/leaderboard'));
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
         const result = await response.json();
-        
+
         if (result.success) {
           setLeaders(result.data);
+        } else {
+          setLeaders([]);
         }
       } catch (error) {
         console.error('Gagal mengambil data leaderboard:', error);
+        setLeaders([]);
       } finally {
         setLoading(false);
       }
@@ -31,7 +39,7 @@ const Leaderboard = () => {
         <h1 className="text-5xl font-bold text-center mb-10">
           SustainaTrack <span className="text-green-500">Leaderboard</span>
         </h1>
-        
+
         {loading ? (
           <p className="text-center text-green-200 text-xl">Memuat data pahlawan bumi...</p>
         ) : (
@@ -41,22 +49,30 @@ const Leaderboard = () => {
                 <tr className="bg-[#111] border-b border-green-500/30">
                   <th className="p-5 text-green-500 font-semibold text-lg">Peringkat</th>
                   <th className="p-5 text-green-500 font-semibold text-lg">Nama Pengguna</th>
-                  <th className="p-5 text-green-500 font-semibold text-lg text-right">Emisi Karbon</th>
+                  <th className="p-5 text-green-500 font-semibold text-lg text-right">
+                    Emisi Karbon
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {leaders.length > 0 ? (
                   leaders.map((item, index) => (
-                    <tr 
-                      key={item._id} 
+                    <tr
+                      key={item._id}
                       className="border-b border-gray-800 hover:bg-green-900/20 transition-colors"
                     >
                       <td className="p-5 text-2xl">
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}
+                        {index === 0
+                          ? '🥇'
+                          : index === 1
+                            ? '🥈'
+                            : index === 2
+                              ? '🥉'
+                              : `#${index + 1}`}
                       </td>
                       <td className="p-5 font-medium text-lg">
                         {/* Logika untuk menampilkan nama jika userId ada, jika null/guest tampilkan Anonymous */}
-                        {item.userId ? (item.userId.username || item.userId.name) : 'Pengguna Guest'}
+                        {item.userId ? item.userId.username || item.userId.name : 'Pengguna Guest'}
                       </td>
                       <td className="p-5 text-right font-bold text-green-400 text-lg">
                         {item.total} kg
