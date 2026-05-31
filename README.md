@@ -109,3 +109,114 @@ npm run dev
 ## 🤝 Conclusion
 This project transforms climate awareness into actionable steps through an engaging, data-driven carbon tracking system. With gamification, personalized insights, and real-time feedback, it motivates users to adopt sustainable habits. Technically robust and scalable, the platform is well-suited for individuals, institutions, and large-scale sustainability initiatives.
 
+
+# 🌱 SustainaTrack - Carbon Emission Tracker and Calculator
+
+**Course Assignment: Systems Development and Operations (DevOps Track)**
+
+An interactive, full-stack, eco-friendly web-based application designed to track and calculate personal carbon footprints using a quiz-based approach. Built natively on Google Cloud Platform (GCP) following **Green DevOps** infrastructure principles with an automated end-to-end Monorepo CI/CD pipeline.
+
+---
+
+## 📖 1. Project Overview
+
+### 📌 Problem Statement 
+Despite growing awareness around climate change, most individuals lack simple and accessible tools to understand and manage their personal environmental impact. Existing carbon footprint calculators are often overly technical, lengthy, or unengaging, making them difficult for the average user to interact with regularly or meaningfully.
+
+This complexity creates a gap between awareness and action, where users may know climate change is an issue but struggle to identify how their daily habits contribute to it or what steps they can take to improve. There is a clear need for a platform that simplifies carbon tracking, provides actionable insights, and motivates users to adopt sustainable practices through engaging features.
+
+### ✅ Proposed Solution
+This project offers an interactive, user-friendly platform that calculates an individual's carbon footprint using a simple quiz-based approach. By replacing complex forms with lifestyle-related questions, it delivers accurate emission estimates in an engaging format. The system provides personalized suggestions to help users reduce their environmental impact and includes a point-based reward mechanism to encourage consistent, sustainable behavior. Designed with scalability in mind, the platform is accessible across devices and aims to make carbon tracking practical, informative, and habit-forming.
+
+### 🟠 Objectives
+- **Interactive & User-Friendly**: Replaces complex forms with a quiz-based approach for better user engagement.
+- **Gamification for Motivation**: Encourages eco-friendly choices through a point-based reward system and progress tracking.
+- **Scalability & Future Expansion**: Built with decoupled microservices capable of integrating advanced logic (e.g., System Dynamics, Fuzzy Logic) and expanding into mobile applications.
+- **Encouraging Behavioural Change**: Provides personalized insights to help users adopt sustainable and responsible lifestyle choices.
+
+---
+
+## 🏗️ 2. Technical Architecture & Tech Stack
+
+### 🗺️ System Architecture
+The application is structured as a **decoupled Monorepo** containing two distinct, isolated directory layers for the frontend and backend. They do not cross-contaminate at the repository layer; instead, they integrate exclusively at the runtime environment via secure HTTPS REST API communication.
+[ Frontend Browser UI ] ────( HTTPS REST API / CORS Secure )────► [ Express.js API Server ]
+(GCP Cloud Run - Front)                                            (GCP Cloud Run - Back)
+│
+▼ (Mongoose Schema)
+[ MongoDB NoSQL Database ]
+### 🛠️ Technology Stack Components
+
+| Component | Technology | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | React.js | Latest | Powers the dynamic quiz input, live tracker, and dashboard elements. |
+| **Backend Runtime** | Node.js / Express.js | 20 LTS | Manages emission calculation formulas, user auth, and API routes. |
+| **Database Tier** | MongoDB NoSQL | Latest | Stores user profiles, quiz inputs, and historical points via Mongoose. |
+| **CI/CD Orchestrator** | GitHub Actions | Runner v4 | Drives automated workflows, paths-filtering, and cloud staging. |
+| **Container Engine** | Docker | Latest | Standardizes execution environments into secure, light OCI images. |
+| **Cloud Registry** | GCP Artifact Registry | - | Stores optimized production Docker container images securely. |
+| **Compute Engine (FE)** | GCP Cloud Run | Managed | Fully managed serverless platform for hosting containerized frontend apps. |
+| **Compute Engine (BE)** | GCP Cloud Run | Managed | Fully managed serverless platform that autoscales backend container pods. |
+| **Monitoring Saturation** | GCP Cloud Monitoring | - | Tracks real-time resource utilization, CPU/RAM spikes, and API logs. |
+
+---
+
+## 🔄 3. Continuous Integration & Deployment (CI/CD)
+
+The project utilizes an automated end-to-end pipeline managed by GitHub Actions (`.github/workflows/deploy.yml`). This configuration enforces strict code validation gates, multi-repo folder separation, and automated serverless container orchestration natively into GCP.
+
+### 🚀 Pipeline Workflow Design
+The pipeline maps out 4 main stages that trigger automatically upon a `git push` event to the `main` branch, provided changes occur within the specified application folders:
+[ Sinta's Laptop Push ] ──► [ Stage 2: Detect Changes ]
+│
+┌─────────────────────────┴─────────────────────────┐
+▼ (if 'frontend/')                                ▼ (if 'backend/')
+[ Stage 3: Lint & Audit Frontend ]                  [ Stage 3: Lint & Audit Backend ]
+│                                                   │
+▼                                                   ▼
+[ Stage 4: Docker Build & Push FE ]                 [ Stage 4: Docker Build & Push BE ]
+│                                                   │
+▼                                                   ▼
+[ Stage 5: Deploy Frontend to Cloud Run ]           [ Stage 5: Deploy Backend to Cloud Run ]
+### 🌿 Green DevOps Implementation
+In adherence to sustainable engineering practices, this pipeline minimizes infrastructure environmental impact through:
+1. **Paths-Filtering Optimization:** Utilizing `dorny/paths-filter@v3`, the workflow isolates changes. If modifications are purely backend-focused, the entire frontend compilation pipeline is bypassed—significantly reducing unnecessary computing hours and electricity consumption on GitHub's remote runner servers.
+2. **Resource Constraint Caps:** Cloud Run deployments are strictly limited to necessary baselines (`--memory=256Mi` for frontend, `--memory=512Mi` for backend), preventing computational over-provisioning and optimizing carbon footprints in Google's data centers.
+
+---
+
+## 📁 4. Project Directory Structure
+
+```text
+sustainatrack-devops/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # Core GitHub Actions workflow engine
+├── backend/
+│   ├── Dockerfile              # Containerization configuration for Express server
+│   ├── package.json            # Node.js backend dependencies and scripts
+│   ├── server.js               # Entry point for Express REST API
+│   └── src/                    # Calculation modules and mongoose schemas
+├── frontend/
+│   ├── Dockerfile              # Containerization configuration for React web app
+│   ├── package.json            # Frontend dependencies
+│   ├── public/                 # Static assets and UI icons
+│   └── src/                    # React views, components, and quiz state
+└── README.md                   # System documentation
+---
+## 📁 5. Installation and Local Setup
+```text
+📋 Prerequisites
+Ensure the following tools are installed locally on your development machine:
+
+Node.js (v18.0.0 or higher)
+
+npm (v9.0.0 or higher)
+
+Docker Desktop (For building local container containers)
+
+Git version control system
+
+🛠️ Execution Steps
+Step 1: Clone the Repository
+
