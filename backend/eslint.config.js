@@ -18,4 +18,12 @@ export default [
       'no-console': 'off',
     },
   },
+  {
+    files: ['tests/**/*.js', '**/*.test.js', '**/*.spec.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+  },
 ];

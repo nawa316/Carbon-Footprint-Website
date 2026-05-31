@@ -9,6 +9,7 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
+      - '.github/workflows/deploy-azure.yml'
   workflow_dispatch:
 
 jobs:
@@ -69,11 +70,35 @@ jobs:
           npm run lint
 
   ###################################
+  # JOB 2: TEST & COVERAGE          #
+  ###################################
+  test:
+    needs: [detect-changes, lint]
+    runs-on: ubuntu-latest
+    if: needs.lint.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Backend Tests with Coverage'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:ci
+
+      - name: 'Frontend Tests with Coverage'
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:ci
+
+  ###################################
   # JOB 2: BUILD & DEPLOY BACKEND   #
   ###################################
   build-and-deploy-backend:
-    needs: [detect-changes, lint]
-    if: needs.detect-changes.outputs.backend == 'true'
+    needs: [detect-changes, lint, test]
+    if: needs.detect-changes.outputs.backend == 'true' && needs.test.result == 'success'
     runs-on: ubuntu-latest
     environment: production
 
@@ -96,12 +121,13 @@ jobs:
   # JOB 3: BUILD & DEPLOY FRONTEND   #
   ####################################
   build-and-deploy-frontend:
-    needs: [detect-changes, lint, build-and-deploy-backend]
+    needs: [detect-changes, lint, test, build-and-deploy-backend]
     if: |
       always() &&
       needs.detect-changes.outputs.frontend == 'true' &&
       (needs.build-and-deploy-backend.result == 'success' || needs.build-and-deploy-backend.result == 'skipped') &&
-      needs.lint.result == 'success'
+      needs.lint.result == 'success' &&
+      needs.test.result == 'success'
     runs-on: ubuntu-latest
     environment: production
 

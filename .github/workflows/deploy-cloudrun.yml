@@ -7,6 +7,8 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
+      - '.github/workflows/deploy-cloudrun.yml'
+  workflow_dispatch:
 
 env:
   REGION: asia-southeast1
@@ -56,9 +58,30 @@ jobs:
           npm run format:check
           npm run lint
 
-  deploy-backend:
+  test:
     needs: [detect-changes, lint]
-    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    if: needs.lint.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 'Backend Tests with Coverage'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:ci
+
+      - name: 'Frontend Tests with Coverage'
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:ci
+
+  deploy-backend:
+    needs: [detect-changes, lint, test]
+    if: needs.detect-changes.outputs.backend == 'true' && needs.test.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -97,8 +120,8 @@ jobs:
             --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }},FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}"
 
   deploy-frontend:
-    needs: [detect-changes, lint]
-    if: needs.detect-changes.outputs.frontend == 'true'
+    needs: [detect-changes, lint, test]
+    if: needs.detect-changes.outputs.frontend == 'true' && needs.test.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
