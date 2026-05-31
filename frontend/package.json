@@ -23,6 +23,9 @@
     "start": "node server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:watch": "react-scripts test --watch",
+    "test:coverage": "CI=true react-scripts test --coverage --watchAll=false --runInBand",
+    "test:ci": "CI=true react-scripts test --watchAll=false --coverage --runInBand",
     "eject": "react-scripts eject",
     "lint": "eslint src server.js",
     "format:check": "prettier --check .",
@@ -33,6 +36,25 @@
       "react-app",
       "react-app/jest"
     ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/components/ContentBox/ContentBox.jsx",
+      "src/context/UserInputContext.jsx"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
   },
   "browserslist": {
     "production": [

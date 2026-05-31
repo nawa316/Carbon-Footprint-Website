@@ -1,8 +1,11 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
+import { API_BASE_URL, apiUrl } from './config/api';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+describe('api config helpers', () => {
+  test('api base url does not end with slash', () => {
+    expect(API_BASE_URL.endsWith('/')).toBe(false);
+  });
+
+  test('apiUrl concatenates path to base url', () => {
+    expect(apiUrl('/health')).toBe(`${API_BASE_URL}/health`);
+  });
 });
