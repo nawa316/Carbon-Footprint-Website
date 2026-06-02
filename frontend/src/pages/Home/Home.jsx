@@ -470,6 +470,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { apiUrl } from '../../config/api';
 import './Home.css';
 
 // Sample data for charts
@@ -488,14 +489,6 @@ const savingsData = [
   { month: 'Dec', saved: 300 },
 ];
 
-const leaderboardData = [
-  { rank: 1, name: 'Alice Green', points: 1200 },
-  { rank: 2, name: 'John Eco', points: 1100 },
-  { rank: 3, name: 'Sophie Earth', points: 1050 },
-  { rank: 4, name: 'Mark Solar', points: 980 },
-  { rank: 5, name: 'Liam Nature', points: 950 },
-];
-
 const achievements = [
   { icon: <Medal size={32} />, title: 'Eco Warrior', description: 'Completed 10 green actions' },
   { icon: <Trophy size={32} />, title: 'Carbon Saver', description: 'Reduced 50kg CO₂' },
@@ -510,6 +503,8 @@ const Home = () => {
   const [showGreenWorld, setShowGreenWorld] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
   const [scrollY, setScrollY] = useState(0);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
 
   // Handle scroll for parallax effects
   useEffect(() => {
@@ -519,6 +514,32 @@ const Home = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Fetch leaderboard data
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch(apiUrl('/api/leaderboard/quiz'));
+        const result = await response.json();
+        if (result.success && result.data) {
+          const formattedData = result.data.slice(0, 5).map((item, index) => ({
+            rank: index + 1,
+            name: item.username || item.name || 'Quiz Master',
+            points: item.points || 0,
+          }));
+          setLeaderboardData(formattedData);
+        } else {
+          setLeaderboardData([]);
+        }
+      } catch (error) {
+        console.error('Error fetching leaderboard for home:', error);
+        setLeaderboardData([]);
+      } finally {
+        setLoadingLeaderboard(false);
+      }
+    };
+    fetchLeaderboard();
   }, []);
 
   // Animation variants
@@ -949,21 +970,31 @@ const Home = () => {
             <hr style={{ borderColor: '#22c55e', marginTop: '15px' }} />
             <h4 style={{ marginTop: '15px', marginBottom: '10px' }}>Top Performers</h4>
             <ul>
-              {leaderboardData.map((player, index) => (
-                <motion.li
-                  key={index}
-                  className={`leaderboard-item ${index < 3 ? 'top-rank' : ''}`}
-                  whileHover={{ scale: 1.05 }}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <span className="rank">#{player.rank}</span>
-                  <span className="name">{player.name}</span>
-                  <span className="points">{player.points} pts</span>
-                </motion.li>
-              ))}
+              {loadingLeaderboard ? (
+                <p style={{ textAlign: 'center', color: '#a3e635', padding: '20px 0' }}>
+                  Memuat data pahlawan kuis...
+                </p>
+              ) : leaderboardData.length > 0 ? (
+                leaderboardData.map((player, index) => (
+                  <motion.li
+                    key={index}
+                    className={`leaderboard-item ${index < 3 ? 'top-rank' : ''}`}
+                    whileHover={{ scale: 1.05 }}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <span className="rank">#{player.rank}</span>
+                    <span className="name">{player.name}</span>
+                    <span className="points">{player.points} pts</span>
+                  </motion.li>
+                ))
+              ) : (
+                <p style={{ textAlign: 'center', color: '#a3e635', padding: '20px 0' }}>
+                  Belum ada data poin kuis.
+                </p>
+              )}
             </ul>
           </motion.div>
 
