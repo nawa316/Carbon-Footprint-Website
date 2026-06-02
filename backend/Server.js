@@ -13,7 +13,7 @@ import { initializeDefaultAchievements } from './services/AchievementService.js'
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
-// test deploy backend
+// test deploy
 
 // Initialize Express app
 const app = express();
