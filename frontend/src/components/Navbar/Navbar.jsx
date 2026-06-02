@@ -341,8 +341,10 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const [showLeaderboardDropdown, setShowLeaderboardDropdown] = useState(false);
   const profileRef = useRef(null);
   const moreRef = useRef(null);
+  const leaderboardRef = useRef(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -359,11 +361,19 @@ const Navbar = () => {
   const toggleMoreDropdown = () => {
     setShowMoreDropdown((prev) => !prev);
     setShowProfileDropdown(false); // Close profile dropdown when opening "More"
+    setShowLeaderboardDropdown(false); // Close leaderboard dropdown
   };
 
   const toggleProfileDropdown = () => {
     setShowProfileDropdown((prev) => !prev);
     setShowMoreDropdown(false); // Close "More" dropdown when opening Profile
+    setShowLeaderboardDropdown(false); // Close leaderboard dropdown
+  };
+
+  const toggleLeaderboardDropdown = () => {
+    setShowLeaderboardDropdown((prev) => !prev);
+    setShowMoreDropdown(false); // Close "More" dropdown when opening Leaderboard
+    setShowProfileDropdown(false); // Close profile dropdown
   };
 
   useEffect(() => {
@@ -373,6 +383,9 @@ const Navbar = () => {
       }
       if (moreRef.current && !moreRef.current.contains(event.target)) {
         setShowMoreDropdown(false);
+      }
+      if (leaderboardRef.current && !leaderboardRef.current.contains(event.target)) {
+        setShowLeaderboardDropdown(false);
       }
     };
 
@@ -399,11 +412,38 @@ const Navbar = () => {
           <Link to="/redeem">
             <li className={location.pathname === '/redeem' ? 'active' : ''}>Redeem</li>
           </Link>
-          
-          {/* Menu Leaderboard Baru */}
-          <Link to="/leaderboard">
-            <li className={location.pathname === '/leaderboard' ? 'active' : ''}>Leaderboard</li>
-          </Link>
+
+          {/* Leaderboard Dropdown */}
+          <div
+            className={`dropdown-container ${showLeaderboardDropdown ? 'active' : ''}`}
+            ref={leaderboardRef}
+          >
+            <button className="dropdown-btn" onClick={toggleLeaderboardDropdown}>
+              Leaderboards{' '}
+              <ChevronDown
+                size={16}
+                className={`chevron ${showLeaderboardDropdown ? 'rotate' : ''}`}
+              />
+            </button>
+            {showLeaderboardDropdown && (
+              <div className="dropdown-menu">
+                <Link
+                  to="/leaderboard"
+                  className="dropdown-item"
+                  onClick={() => setShowLeaderboardDropdown(false)}
+                >
+                  Carbon Footprint
+                </Link>
+                <Link
+                  to="/quiz-leaderboard"
+                  className="dropdown-item"
+                  onClick={() => setShowLeaderboardDropdown(false)}
+                >
+                  Quiz Points
+                </Link>
+              </div>
+            )}
+          </div>
 
           {/* More Dropdown */}
           <div className={`dropdown-container ${showMoreDropdown ? 'active' : ''}`} ref={moreRef}>

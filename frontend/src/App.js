@@ -38,6 +38,7 @@ import './App.css';
 import { UserInputProvider } from './context/UserInputContext';
 import CarbonInfo from './pages/CarbonInfo/CarbonInfo';
 import Leaderboard from './pages/Leaderboard';
+import QuizLeaderboard from './pages/QuizLeaderboard';
 
 function App() {
   const [activeSection, setActiveSection] = useState('Shopping'); // Manage active section here
@@ -65,6 +66,7 @@ function App() {
               <Route path="/carbonInfo" element={<CarbonInfo />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/quiz-leaderboard" element={<QuizLeaderboard />} />
             </Routes>
           </div>
           <Footer />

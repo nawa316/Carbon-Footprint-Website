@@ -447,6 +447,7 @@
 // export default Home;
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Leaf,
@@ -903,7 +904,50 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h3>Leaderboard</h3>
+            <h3>Leaderboards</h3>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+              <Link
+                to="/leaderboard"
+                style={{
+                  flex: 1,
+                  padding: '10px 15px',
+                  backgroundColor: '#22c55e',
+                  color: 'white',
+                  textAlign: 'center',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  transition: 'background-color 0.3s',
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = '#16a34a')}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = '#22c55e')}
+              >
+                Carbon Footprint
+              </Link>
+              <Link
+                to="/quiz-leaderboard"
+                style={{
+                  flex: 1,
+                  padding: '10px 15px',
+                  backgroundColor: '#22c55e',
+                  color: 'white',
+                  textAlign: 'center',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  fontWeight: 'bold',
+                  transition: 'background-color 0.3s',
+                }}
+                onMouseEnter={(e) => (e.target.style.backgroundColor = '#16a34a')}
+                onMouseLeave={(e) => (e.target.style.backgroundColor = '#22c55e')}
+              >
+                Quiz Points
+              </Link>
+            </div>
+            <div style={{ fontSize: '14px', color: '#a3e635', textAlign: 'center' }}>
+              <p>Click above to view full leaderboards and compete with others!</p>
+            </div>
+            <hr style={{ borderColor: '#22c55e', marginTop: '15px' }} />
+            <h4 style={{ marginTop: '15px', marginBottom: '10px' }}>Top Performers</h4>
             <ul>
               {leaderboardData.map((player, index) => (
                 <motion.li
