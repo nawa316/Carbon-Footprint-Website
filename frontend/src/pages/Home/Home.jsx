@@ -447,7 +447,7 @@
 // export default Home;
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Leaf,
@@ -500,12 +500,26 @@ const achievements = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
   const [showGreenWorld, setShowGreenWorld] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
   const [scrollY, setScrollY] = useState(0);
   const [activeLeaderboard, setActiveLeaderboard] = useState('carbon');
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
+
+  const handleCalculateNavigation = () => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      localStorage.removeItem('redirectAfterLogin');
+      navigate('/calculate');
+      return;
+    }
+
+    localStorage.setItem('redirectAfterLogin', '/calculate');
+    navigate('/auth');
+  };
 
   // Handle scroll for parallax effects
   useEffect(() => {
@@ -628,18 +642,19 @@ const Home = () => {
             future.
           </motion.p>
 
-          <motion.a
-            href="/calculate"
+          <motion.button
+            type="button"
             className="hero-btn"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1, duration: 0.8, ease: 'easeInOut' }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={handleCalculateNavigation}
           >
             Calculate Now
             <span className="btn-shine"></span>
-          </motion.a>
+          </motion.button>
         </motion.div>
 
         {/* Scroll down indicator */}
@@ -1056,8 +1071,8 @@ const Home = () => {
         </div>
 
         {/* Call to Action */}
-        <motion.a
-          href="#"
+        <motion.button
+          type="button"
           className="join-now-btn"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -1065,10 +1080,11 @@ const Home = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           viewport={{ once: true }}
+          onClick={handleCalculateNavigation}
         >
           Join Now
           <span className="btn-glow"></span>
-        </motion.a>
+        </motion.button>
       </section>
     </div>
   );
