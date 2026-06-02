@@ -503,6 +503,7 @@ const Home = () => {
   const [showGreenWorld, setShowGreenWorld] = useState(false);
   const [activeFeature, setActiveFeature] = useState(null);
   const [scrollY, setScrollY] = useState(0);
+  const [activeLeaderboard, setActiveLeaderboard] = useState('carbon');
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(true);
 
@@ -519,14 +520,22 @@ const Home = () => {
   // Fetch leaderboard data
   useEffect(() => {
     const fetchLeaderboard = async () => {
+      setLoadingLeaderboard(true);
       try {
-        const response = await fetch(apiUrl('/api/leaderboard/quiz'));
+        const endpoint =
+          activeLeaderboard === 'quiz' ? '/api/leaderboard/quiz' : '/api/leaderboard';
+        const response = await fetch(apiUrl(endpoint));
         const result = await response.json();
         if (result.success && result.data) {
           const formattedData = result.data.slice(0, 5).map((item, index) => ({
             rank: index + 1,
-            name: item.username || item.name || 'Quiz Master',
-            points: item.points || 0,
+            name:
+              (activeLeaderboard === 'quiz'
+                ? item.username || item.name
+                : item.userId
+                  ? item.userId.username || item.userId.name
+                  : undefined) || 'Guest',
+            points: activeLeaderboard === 'quiz' ? item.points || 0 : item.total || 0,
           }));
           setLeaderboardData(formattedData);
         } else {
@@ -540,7 +549,7 @@ const Home = () => {
       }
     };
     fetchLeaderboard();
-  }, []);
+  }, [activeLeaderboard]);
 
   // Animation variants
   const fadeIn = {
@@ -927,57 +936,66 @@ const Home = () => {
           >
             <h3>Leaderboards</h3>
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-              <Link
-                to="/leaderboard"
+              <button
+                onClick={() => setActiveLeaderboard('carbon')}
                 style={{
                   flex: 1,
                   padding: '10px 15px',
-                  backgroundColor: '#22c55e',
+                  backgroundColor: activeLeaderboard === 'carbon' ? '#16a34a' : '#22c55e',
                   color: 'white',
                   textAlign: 'center',
                   borderRadius: '8px',
-                  textDecoration: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
                   fontWeight: 'bold',
                   transition: 'background-color 0.3s',
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = '#16a34a')}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = '#22c55e')}
+                onMouseEnter={(e) => {
+                  if (activeLeaderboard !== 'carbon') e.target.style.backgroundColor = '#16a34a';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeLeaderboard !== 'carbon') e.target.style.backgroundColor = '#22c55e';
+                }}
               >
                 Carbon Footprint
-              </Link>
-              <Link
-                to="/quiz-leaderboard"
+              </button>
+              <button
+                onClick={() => setActiveLeaderboard('quiz')}
                 style={{
                   flex: 1,
                   padding: '10px 15px',
-                  backgroundColor: '#22c55e',
+                  backgroundColor: activeLeaderboard === 'quiz' ? '#16a34a' : '#22c55e',
                   color: 'white',
                   textAlign: 'center',
                   borderRadius: '8px',
-                  textDecoration: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
                   fontWeight: 'bold',
                   transition: 'background-color 0.3s',
                 }}
-                onMouseEnter={(e) => (e.target.style.backgroundColor = '#16a34a')}
-                onMouseLeave={(e) => (e.target.style.backgroundColor = '#22c55e')}
+                onMouseEnter={(e) => {
+                  if (activeLeaderboard !== 'quiz') e.target.style.backgroundColor = '#16a34a';
+                }}
+                onMouseLeave={(e) => {
+                  if (activeLeaderboard !== 'quiz') e.target.style.backgroundColor = '#22c55e';
+                }}
               >
                 Quiz Points
-              </Link>
+              </button>
             </div>
             <div style={{ fontSize: '14px', color: '#a3e635', textAlign: 'center' }}>
-              <p>Click above to view full leaderboards and compete with others!</p>
+              <p>Top 5 Performers</p>
             </div>
             <hr style={{ borderColor: '#22c55e', marginTop: '15px' }} />
-            <h4 style={{ marginTop: '15px', marginBottom: '10px' }}>Top Performers</h4>
             <ul>
               {loadingLeaderboard ? (
                 <p style={{ textAlign: 'center', color: '#a3e635', padding: '20px 0' }}>
-                  Memuat data pahlawan kuis...
+                  Memuat data pahlawan...
                 </p>
               ) : leaderboardData.length > 0 ? (
                 leaderboardData.map((player, index) => (
                   <motion.li
-                    key={index}
+                    key={`${activeLeaderboard}-${index}`}
                     className={`leaderboard-item ${index < 3 ? 'top-rank' : ''}`}
                     whileHover={{ scale: 1.05 }}
                     initial={{ opacity: 0, x: -20 }}
@@ -987,15 +1005,25 @@ const Home = () => {
                   >
                     <span className="rank">#{player.rank}</span>
                     <span className="name">{player.name}</span>
-                    <span className="points">{player.points} pts</span>
+                    <span className="points">
+                      {player.points} {activeLeaderboard === 'quiz' ? 'pts' : 'kg'}
+                    </span>
                   </motion.li>
                 ))
               ) : (
                 <p style={{ textAlign: 'center', color: '#a3e635', padding: '20px 0' }}>
-                  Belum ada data poin kuis.
+                  Belum ada data.
                 </p>
               )}
             </ul>
+            <div style={{ textAlign: 'center', marginTop: '15px' }}>
+              <Link
+                to={activeLeaderboard === 'quiz' ? '/quiz-leaderboard' : '/leaderboard'}
+                style={{ color: '#22c55e', textDecoration: 'underline', fontWeight: 'bold' }}
+              >
+                View Full Leaderboard
+              </Link>
+            </div>
           </motion.div>
 
           {/* Achievements */}
