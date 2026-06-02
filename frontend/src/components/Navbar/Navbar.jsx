@@ -399,7 +399,9 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <div className="logo">
-          <span className="logo-text">SustainaTrack</span>
+          <Link to="/" className="logo-text">
+            SustainaTrack
+          </Link>
           {/* <span className="logo-leaf">🍃</span> */}
         </div>
         <ul className="nav-links">
