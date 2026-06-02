@@ -271,7 +271,7 @@ All code layers are isolated within Docker engines. The frontend container utili
 * **`sustainatrack-backend`:** Hosts Node.js API container nodes inside the `asia-southeast1` (Jakarta) region. Configured with rigorous operational resource constraint boundaries (`--memory=512Mi`) to prevent computing over-provisioning.
 * **`sustainatrack-frontend`:** Manages interactive client web layouts inside the same regional infrastructure, capped at strict boundaries (`--memory=256Mi`) to optimize active data center power limits.
 #### Database Target Integration
-The computational engine connects securely to a cloud-managed **MongoDB Atlas** cluster environment. Database authorization parameters, access tokens, and API secret environments are dynamically injected at runtime via encrypted environment keys (`MONGO_URI`, `GEMINI_API_KEY`) using automated GitHub Actions Secrets allocation keys.
+The computational engine connects securely to a cloud-managed **MongoDB** cluster environment. Database authorization parameters, access tokens, and API secret environments are dynamically injected at runtime via encrypted environment keys (`MONGO_URI`, `GEMINI_API_KEY`) using automated GitHub Actions Secrets allocation keys.
 
 ---
 
@@ -307,7 +307,57 @@ During verification tests running on active GitHub runner nodes, the automated d
 
 ---
 
-## 🚀 How to Run This Project
+## Step-by-Step to Fork and Clone the Repository
+For external developers who want to contribute or build upon this project:
+1. Open your web browser and navigate to [github.com](https://github.com).
+2. Search for and open the target repository: `nawa316/Carbon-Footprint-Website`.
+3. Click the **Fork** button located at the top-right corner of the repository page, then fill out the repository detail form to create a copy under your personal GitHub account.
+4. Once the fork is completed, launch your local terminal or Git Bash execution node and run the following command to clone it onto your workstation:
+   ```bash
+   git clone [https://github.com/YOUR_USERNAME/Carbon-Footprint-Website.git](https://github.com/YOUR_USERNAME/Carbon-Footprint-Website.git)
+   cd Carbon-Footprint-Website
+   ```
+
+## Step-by-Step to Access the Live Website
+To interact directly with the production system environment:
+1. Access the live SustainaTrack application platform directly through the following official Google Cloud Run deployment URL address:
+    ```bash
+    https://sustainatrack-frontend-639517774312.asia-southeast1.run.app
+    ```
+2. Click the Login / Signup button on the landing viewport window to register or enter your private, secured individual user dashboard profile session.
+3. Once authenticated, the system core features—including the dynamic carbon calculation quiz steps, gamified reward points, tracking progress graphs, and leaderboards—are fully operational and ready to use.
+
+## Step-by-Step to Navigate Frontend & Backend Directories
+When working within the Monorepo structure, execute the standard change-directory command (cd) to navigate between separate localized terminal boundaries:
+1. To enter the Frontend Client UI Workspace:
+  ```Bash
+  cd frontend
+  ```
+2. To enter the Server Backend API Workspace:
+  ```Bash
+  cd backend
+  ```
+3. To return back to the root monorepo directory scope:
+  ```Bash
+  cd ..
+  ```
+
+## Step-by-Step to Deploy Changes to Production
+Due to our automated Continuous Integration & Deployment (CI/CD) engineering gates, production delivery is triggered natively through regular Git version control push interactions targeting the central main branch environment:
+1. Stage all your modified codebase parameters locally:
+  ```Bash
+  git add .
+  ```
+2. Bundle your adjustments securely with a clear conventional log description explaining your modifications:
+  ```Bash
+  git commit -m "feat: add new carbon calculation variable assets"
+  ```
+3. Push your verified local commit elements to the upstream remote branch tier:
+  ```Bash
+  git push origin main
+  ```
+
+## How to Run This Project
 1. Clone this Repository
 2. Start the Frontend
 ```bash
@@ -320,37 +370,22 @@ cd backend
 npm run dev
 ```
 
-⚠️ Make sure Node.js and npm are installed on your system.  
-💡 Run frontend and backend files in two different terminals.
-
+##### ⚠️ Make sure Node.js and npm are installed on your system.  
+##### 💡 Run frontend and backend files in two different terminals.
 ---
 
-## 💻Platform Screenshots
-![Home Page](image.png)
 
-![Login Page](image-1.png)
-
-![Shopping Section](image-2.png)
-
-![Transport Section](image-3.png)
-
-![Electricity Section](image-4.png)
-
-![Food Section](image-5.png)
-
-![Result Section](image-6.png)
-
-![Congratulations Page](image-7.png)
-
-![Redeem Page](image-8.png)
-
-![Profile Page](image-9.png)
-
+## Platform Screenshots
+<img src="image.png" width="45%" /> <img src="image-1.png" width="45%" />
+<img src="image-2.png" width="45%" /> <img src="image-3.png" width="45%" />
+<img src="image-4.png" width="45%" /> <img src="image-5.png" width="45%" />
+<img src="image-6.png" width="45%" /> <img src="image-7.png" width="45%" />
+<img src="image-8.png" width="45%" /> <img src="image-9.png" width="45%" />
 ---
 
-## 🤝 Conclusion
+## Conclusion
 This project transforms climate awareness into actionable steps through an engaging, data-driven carbon tracking system. With gamification, personalized insights, and real-time feedback, it motivates users to adopt sustainable habits. Technically robust and scalable, the platform is well-suited for individuals, institutions, and large-scale sustainability initiatives.
 
-## 📄 License
+## License
 Course assignment - ES234632 Pengembangan Sistem dan Operasi
-Last Updated: 31 May 2025
+Last Updated: 02 May 2025
