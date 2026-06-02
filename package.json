@@ -31,8 +31,14 @@
       "bash -c 'cd frontend && npx eslint --fix --no-ignore \"$@\"' --",
       "bash -c 'cd frontend && npx prettier --write \"$@\"' --"
     ],
+    "frontend/**/*.{css,json,html,md}": [
+      "bash -c 'cd frontend && npx prettier --write \"$@\"' --"
+    ],
     "backend/**/*.js": [
       "bash -c 'cd backend && npx eslint --fix --no-ignore \"$@\"' --",
+      "bash -c 'cd backend && npx prettier --write \"$@\"' --"
+    ],
+    "backend/**/*.{json,md}": [
       "bash -c 'cd backend && npx prettier --write \"$@\"' --"
     ]
   }
