@@ -8,6 +8,8 @@ import userRoute from './routes/userRoute.js';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import leaderboardRoutes from './routes/leaderboardRoutes.js';
+import achievementRoutes from './routes/achievementRoutes.js';
+import { initializeDefaultAchievements } from './services/AchievementService.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
@@ -36,6 +38,10 @@ const start = async () => {
     app.use('/api/gamification', gamificationRoute);
     app.use('/api/bill', billRoute);
     app.use('/api/leaderboard', leaderboardRoutes);
+    app.use('/api/achievement', achievementRoutes);
+
+    // Initialize default achievements
+    await initializeDefaultAchievements();
 
     // test route
     app.get('/', (req, res) => {

@@ -386,6 +386,24 @@
   gap: 15px;
 }
 
+.achievements-section {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a3a2a;
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e3f2eb;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
 .achievement-item {
   display: flex;
   gap: 15px;
@@ -436,6 +454,14 @@
   color: #888;
 }
 
+/* All Achievements Tab */
+.all-achievements {
+  h3 {
+    font-size: 24px;
+    color: #1a3a2a;
+    margin: 0 0 25px 0;
+  }
+}
 /* Responsive Design */
 @media (max-width: 1024px) {
   .profile-sidebar {

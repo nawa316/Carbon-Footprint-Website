@@ -5,7 +5,6 @@ import {
   User,
   Signature,
   Mail,
-  Leaf,
   Calendar,
   ChevronDown,
   ChevronUp,
@@ -31,6 +30,7 @@ import {
 import Swal from 'sweetalert2';
 import './Profile.css';
 import { apiUrl } from '../../config/api';
+import AchievementBadge from '../../components/AchievementBadge/AchievementBadge';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -45,6 +45,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [footprints, setFootprints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [achievements, setAchievements] = useState([]);
 
   // Edit Profile State
   const [isEditing, setIsEditing] = useState(false);
@@ -67,6 +68,8 @@ const Profile = () => {
           fetch(apiUrl('/api/footprint/history'), { headers }),
         ]);
 
+        const achievementsRes = await fetch(apiUrl('/api/achievement/all'), { headers });
+
         if (profileRes.ok) {
           const profileData = await profileRes.json();
           setUser(profileData);
@@ -84,6 +87,11 @@ const Profile = () => {
         if (historyRes.ok) {
           const historyData = await historyRes.json();
           setFootprints(historyData.footprints || []);
+
+          if (achievementsRes.ok) {
+            const achievementsData = await achievementsRes.json();
+            setAchievements(achievementsData);
+          }
         }
       } catch (err) {
         console.error('Error fetching profile data:', err);
@@ -193,8 +201,6 @@ const Profile = () => {
     { name: 'Energy', value: todayFootprint.energy, fill: '#006d77' },
     { name: 'Shopping', value: todayFootprint.shopping, fill: '#ffddd2' },
   ];
-
-  const badges = user.badges && user.badges.length > 0 ? user.badges : [];
 
   return (
     <div className="profile-page">
@@ -490,18 +496,17 @@ const Profile = () => {
               {expandedSections.achievements && (
                 <div className="card-content">
                   <div className="achievements-list">
-                    {badges.length > 0 ? (
-                      badges.map((badge, index) => (
-                        <div className="achievement-item" key={index}>
-                          <div className="achievement-icon">
-                            <Leaf size={24} />
-                          </div>
-                          <div className="achievement-content">
-                            <h4>{badge}</h4>
-                            <p>Earned for your eco-friendly actions.</p>
-                          </div>
-                        </div>
-                      ))
+                    {achievements.filter((a) => a.isUnlocked).length > 0 ? (
+                      achievements
+                        .filter((a) => a.isUnlocked)
+                        .slice(0, 3)
+                        .map((achievement) => (
+                          <AchievementBadge
+                            key={achievement.badgeId}
+                            achievement={achievement}
+                            isUnlocked={true}
+                          />
+                        ))
                     ) : (
                       <p>No achievements yet. Keep tracking to earn badges!</p>
                     )}
@@ -539,19 +544,43 @@ const Profile = () => {
           <div className="all-achievements">
             <h3>All Achievements</h3>
             <div className="achievements-list">
-              {badges.length > 0 ? (
-                badges.map((badge, index) => (
-                  <div className="achievement-item" key={index}>
-                    <div className="achievement-icon">
-                      <Leaf size={24} />
-                    </div>
-                    <div className="achievement-content">
-                      <h4>{badge}</h4>
+              {achievements.length > 0 ? (
+                <>
+                  <div className="achievements-section">
+                    <h4 className="section-title">Unlocked Achievements</h4>
+                    <div className="badges-grid">
+                      {achievements.filter((a) => a.isUnlocked).length > 0 ? (
+                        achievements
+                          .filter((a) => a.isUnlocked)
+                          .map((achievement) => (
+                            <AchievementBadge
+                              key={achievement.badgeId}
+                              achievement={achievement}
+                              isUnlocked={true}
+                            />
+                          ))
+                      ) : (
+                        <p>No unlocked achievements yet.</p>
+                      )}
                     </div>
                   </div>
-                ))
+                  <div className="achievements-section">
+                    <h4 className="section-title">Locked Achievements</h4>
+                    <div className="badges-grid">
+                      {achievements
+                        .filter((a) => !a.isUnlocked)
+                        .map((achievement) => (
+                          <AchievementBadge
+                            key={achievement.badgeId}
+                            achievement={achievement}
+                            isUnlocked={false}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                </>
               ) : (
-                <p>No achievements yet.</p>
+                <p>No achievements available.</p>
               )}
             </div>
           </div>

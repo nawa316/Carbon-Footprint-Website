@@ -81,6 +81,7 @@ import Footprint from '../models/Footprint.js';
 import User from '../models/User.js';
 import GuestCache from '../services/GuestCache.js';
 import { v4 as uuidv4 } from 'uuid'; // For generating session IDs
+import { checkAndAwardAchievements } from '../services/AchievementService.js';
 
 // 🟢 Guest Carbon Footprint Calculation
 export const guestFootprintCalculate = async (req, res) => {
@@ -219,6 +220,18 @@ export const footprintCalculate = async (req, res) => {
     await newFootprint.save();
 
     res.json({ success: true, message: 'Carbon Footprint Saved for User', footprint });
+
+    // Check and award achievements
+    const newBadges = await checkAndAwardAchievements(userId);
+    if (newBadges.length > 0) {
+      res.json({
+        success: true,
+        message: 'Carbon Footprint Saved for User',
+        footprint,
+        newBadges,
+        achievement: `Congratulations! You earned ${newBadges.map((b) => b.name).join(', ')}!`,
+      });
+    }
   } catch (error) {
     console.error('Error in footprintCalculate:', error);
     res.status(500).json({ error: 'Internal Server Error', message: error.message });

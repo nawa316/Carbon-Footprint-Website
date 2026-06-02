@@ -363,6 +363,7 @@ import {
 import Confetti from 'react-confetti';
 import { motion } from 'framer-motion';
 import { apiUrl } from '../config/api';
+import { showAchievementNotifications } from '../components/AchievementNotification/AchievementNotification';
 
 const Result = () => {
   const { userData } = useUserInput();
@@ -418,6 +419,11 @@ const Result = () => {
       if (token) {
         let pointsEarned = Math.max(0, Math.min(100, 100 - (data.footprint.total / 800) * 100));
         updateRewardPoints(Math.round(pointsEarned));
+      }
+
+      // Show achievement notifications if badges were earned
+      if (data.newBadges && data.newBadges.length > 0) {
+        await showAchievementNotifications(data.newBadges);
       }
     } catch (error) {
       console.error('Error:', error);
