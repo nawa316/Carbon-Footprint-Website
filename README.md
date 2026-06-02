@@ -312,11 +312,13 @@ During verification tests running on active GitHub runner nodes, the automated d
 2. Start the Frontend
 ```bash
 cd frontend
+npm install
 npm start
 ```
 3. Start the Backend
 ```bash
 cd backend
+npm install
 npm run dev
 ```
 
