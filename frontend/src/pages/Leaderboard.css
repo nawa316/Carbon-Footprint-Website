@@ -1,0 +1,282 @@
+/* Leaderboard Page Styles */
+
+.leaderboard-page {
+  font-family: 'Urbanist', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Animations */
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
+  }
+}
+
+@keyframes pulse-glow-purple {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+  }
+}
+
+/* Leaderboard Container */
+.leaderboard-container {
+  animation: floatIn 0.6s ease-out;
+}
+
+/* Top Cards */
+.top-card {
+  position: relative;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.top-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.top-card:hover::before {
+  opacity: 1;
+}
+
+/* Leaderboard List */
+.leaderboard-list {
+  animation: slideInLeft 0.6s ease-out 0.1s both;
+}
+
+.leaderboard-item {
+  position: relative;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.leaderboard-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.3), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.leaderboard-item:hover::before {
+  opacity: 1;
+}
+
+.leaderboard-item:nth-child(even) {
+  background: linear-gradient(90deg, rgba(74, 85, 104, 0.15), transparent);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .leaderboard-page {
+    padding-top: 100px;
+  }
+
+  .leaderboard-item {
+    padding: 12px;
+  }
+
+  .leaderboard-item .flex-shrink-0 {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 14px;
+  }
+
+  .leaderboard-item .text-lg {
+    font-size: 16px;
+  }
+
+  .leaderboard-item .text-2xl {
+    font-size: 18px;
+  }
+}
+
+/* Scroll Animation */
+@media (prefers-reduced-motion: no-preference) {
+  .leaderboard-item {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Loading Spinner Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 2s linear infinite;
+}
+
+/* Gradient Text */
+.bg-clip-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Badge/Rank Styles */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+  transition: all 0.3s ease;
+}
+
+.leaderboard-item:hover .rank-badge {
+  transform: scale(1.1);
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+/* Icon Animations */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.icon-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Score Counter Animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.score-value {
+  animation: countUp 0.6s ease-out;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+/* Header Styles */
+.leaderboard-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.leaderboard-header h1 {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.leaderboard-header p {
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+/* Card Hover Effects */
+.top-card:hover {
+  transform: translateY(-12px);
+}
+
+.leaderboard-item:hover {
+  transform: translateX(8px);
+}
