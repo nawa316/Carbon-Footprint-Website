@@ -31,6 +31,7 @@ import Swal from 'sweetalert2';
 import './Profile.css';
 import { apiUrl } from '../../config/api';
 import AchievementBadge from '../../components/AchievementBadge/AchievementBadge';
+import { showAchievementNotifications } from '../../components/AchievementNotification/AchievementNotification';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -91,6 +92,42 @@ const Profile = () => {
           if (achievementsRes.ok) {
             const achievementsData = await achievementsRes.json();
             setAchievements(achievementsData);
+          }
+
+          // Check for newly earned achievements and notify the user
+          try {
+            const checkRes = await fetch(apiUrl('/api/achievement/check'), {
+              method: 'POST',
+              headers,
+            });
+            if (checkRes.ok) {
+              const checkData = await checkRes.json();
+              if (checkData.newBadges && checkData.newBadges.length > 0) {
+                await showAchievementNotifications(checkData.newBadges);
+
+                // Refresh profile and achievements after awarding badges
+                const refreshedProfile = await fetch(apiUrl('/api/user/profile'), { headers });
+                if (refreshedProfile.ok) {
+                  const refreshedData = await refreshedProfile.json();
+                  setUser(refreshedData);
+                  setEditFormData({
+                    name: refreshedData.name || '',
+                    location: refreshedData.location || '',
+                    carbonGoal: refreshedData.carbonGoal || '',
+                  });
+                }
+
+                const refreshedAchievements = await fetch(apiUrl('/api/achievement/all'), {
+                  headers,
+                });
+                if (refreshedAchievements.ok) {
+                  const refreshedAchievementsData = await refreshedAchievements.json();
+                  setAchievements(refreshedAchievementsData);
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Error checking achievements:', err);
           }
         }
       } catch (err) {
