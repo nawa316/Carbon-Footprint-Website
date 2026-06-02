@@ -13,8 +13,6 @@ import { initializeDefaultAchievements } from './services/AchievementService.js'
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
-// test
-
 // Initialize Express app
 const app = express();
 
