@@ -195,4 +195,38 @@ describe('carbonCalculator utility', () => {
     expect(res.shoppingEmissions).toBe(0);
     consoleSpy.mockRestore();
   });
+
+  test('covers fallback branches for car mode dailyDistance falsy, and invalid shopping keys', () => {
+    // car mode, falsy dailyDistance
+    const resCarFalsyDist = calculateEmissions({
+      mode: 'car',
+      driveFrequency: 'daily',
+      dailyDistance: null,
+    });
+    expect(resCarFalsyDist.transportEmissions).toBe(0);
+
+    // electronics category with missing or invalid keys
+    const resElecInvalid = calculateEmissions({
+      purchaseCategory: 'electronics',
+      electronicsReplacement: 'invalid_key',
+      mediumElectronics: null,
+    });
+    expect(resElecInvalid.shoppingEmissions).toBe(0);
+
+    // home_goods category with missing or invalid keys
+    const resHomeInvalid = calculateEmissions({
+      purchaseCategory: 'home_goods',
+      homeFurniture: 'invalid_key',
+      applianceReplacement: null,
+    });
+    expect(resHomeInvalid.shoppingEmissions).toBe(0);
+
+    // small_clothing category with missing or invalid keys
+    const resSmallClothingInvalid = calculateEmissions({
+      purchaseCategory: 'small_clothing',
+      shoppingFrequency: 'invalid_key',
+      clothingPurchase: null,
+    });
+    expect(resSmallClothingInvalid.shoppingEmissions).toBe(0);
+  });
 });

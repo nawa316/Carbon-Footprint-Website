@@ -76,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: 'Backend Unit Tests'
         if: needs.detect-changes.outputs.backend == 'true'
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: 'Backend Integration Tests'
         if: needs.detect-changes.outputs.backend == 'true'
@@ -124,7 +124,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: 'Run Full Backend Tests for Enforced Coverage'
         if: needs.detect-changes.outputs.backend == 'true'
@@ -163,26 +163,39 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
       - name: Build & Push Image
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.BACKEND_IMAGE_NAME }}"
+          IMAGE="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REPO/$BACKEND_IMAGE_NAME"
           docker build -f backend/Dockerfile -t "$IMAGE:$GITHUB_SHA" backend
           docker push "$IMAGE:$GITHUB_SHA"
 
       - name: Deploy ke Cloud Run
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
+          FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.BACKEND_IMAGE_NAME }}"
-          gcloud run deploy ${{ env.BACKEND_SERVICE_NAME }} \
+          IMAGE="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REPO/$BACKEND_IMAGE_NAME"
+          gcloud run deploy $BACKEND_SERVICE_NAME \
             --image="$IMAGE:$GITHUB_SHA" \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --project=$GCP_PROJECT_ID \
             --platform=managed \
-            --region=${{ env.REGION }} \
+            --region=$REGION \
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }},FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}"
+            --set-env-vars="MONGO_URI=$MONGO_URI,JWT_SECRET=$JWT_SECRET,EMAIL_USER=$EMAIL_USER,EMAIL_PASSWORD=$EMAIL_PASSWORD,GEMINI_API_KEY=$GEMINI_API_KEY,BACKEND_BASE_URL=$BACKEND_BASE_URL,FRONTEND_BASE_URL=$FRONTEND_BASE_URL"
 
   deploy-frontend:
     needs: [detect-changes, lint, coverage-summary]
@@ -203,26 +216,33 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure Docker
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
 
       - name: Build & Push Frontend Image
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.FRONTEND_IMAGE_NAME }}"
+          IMAGE="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REPO/$FRONTEND_IMAGE_NAME"
           docker build \
-            --build-arg REACT_APP_API_BASE_URL=${{ secrets.BACKEND_BASE_URL }} \
+            --build-arg REACT_APP_API_BASE_URL=$BACKEND_BASE_URL \
             -f frontend/Dockerfile \
             -t "$IMAGE:$GITHUB_SHA" \
             frontend
           docker push "$IMAGE:$GITHUB_SHA"
 
       - name: Deploy Frontend ke Cloud Run
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
-          IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.ARTIFACT_REPO }}/${{ env.FRONTEND_IMAGE_NAME }}"
-          gcloud run deploy ${{ env.FRONTEND_SERVICE_NAME }} \
+          IMAGE="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REPO/$FRONTEND_IMAGE_NAME"
+          gcloud run deploy $FRONTEND_SERVICE_NAME \
             --image="$IMAGE:$GITHUB_SHA" \
-            --project=${{ secrets.GCP_PROJECT_ID }} \
+            --project=$GCP_PROJECT_ID \
             --platform=managed \
-            --region=${{ env.REGION }} \
+            --region=$REGION \
             --allow-unauthenticated \
             --port=8080 \
             --memory=256Mi

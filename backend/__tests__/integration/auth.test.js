@@ -351,6 +351,17 @@ describe('Auth Integration Tests', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    test('getMe unauthorized due to missing user id in token (401)', async () => {
+      const tokenNoId = jwt.sign({ email: 'user@example.com' }, testSecret);
+      const res = await request(app)
+        .get('/api/auth/me')
+        .set('Authorization', `Bearer ${tokenNoId}`);
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('Unauthorized');
+    });
   });
 
   describe('GET /api/auth/verify-email/:token', () => {
@@ -487,6 +498,90 @@ describe('Auth Integration Tests', () => {
 
       expect(res.status).toBe(500);
       expect(res.body.error).toBeDefined();
+    });
+  });
+
+  describe('fallback JWT_SECRET checks', () => {
+    const originalSecret = process.env.JWT_SECRET;
+
+    beforeEach(() => {
+      delete process.env.JWT_SECRET;
+    });
+
+    afterEach(() => {
+      process.env.JWT_SECRET = originalSecret;
+    });
+
+    test('register/login/verifyEmail/forgotPassword/resetPassword work with fallback JWT_SECRET', async () => {
+      // 1. Register
+      jest.spyOn(User, 'findOne').mockResolvedValue(null);
+      jest.spyOn(User.prototype, 'save').mockResolvedValue({});
+      jest.spyOn(bcrypt, 'genSalt').mockResolvedValue('salt');
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedpassword');
+
+      const registerRes = await request(app).post('/api/auth/register').send({
+        name: 'John Fallback',
+        email: 'johnfallback@example.com',
+        password: 'password123',
+      });
+      expect(registerRes.status).toBe(201);
+
+      // 2. Login
+      const mockUser = {
+        _id: 'user-123',
+        email: 'johnfallback@example.com',
+        password: 'hashedpassword',
+        verified: true,
+      };
+      jest.spyOn(User, 'findOne').mockResolvedValue(mockUser);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true);
+
+      const loginRes = await request(app).post('/api/auth/login').send({
+        email: 'johnfallback@example.com',
+        password: 'password123',
+      });
+      expect(loginRes.status).toBe(200);
+
+      // 3. VerifyEmail
+      const fallbackVerifyToken = jwt.sign({ id: 'user-123' }, 'secret');
+      const mockUserInstance = {
+        _id: 'user-123',
+        verified: false,
+        verificationToken: fallbackVerifyToken,
+        save: jest.fn().mockResolvedValue({}),
+      };
+      jest.spyOn(User, 'findById').mockResolvedValue(mockUserInstance);
+      const verifyRes = await request(app).get(`/api/auth/verify-email/${fallbackVerifyToken}`);
+      expect(verifyRes.status).toBe(302);
+
+      // 4. ForgotPassword
+      const mockUserForgotInstance = {
+        email: 'johnfallback@example.com',
+        resetPasswordToken: null,
+        save: jest.fn().mockResolvedValue({}),
+      };
+      jest.spyOn(User, 'findOne').mockResolvedValue(mockUserForgotInstance);
+      const forgotRes = await request(app)
+        .post('/api/auth/forgot-password')
+        .send({ email: 'johnfallback@example.com' });
+      expect(forgotRes.status).toBe(200);
+
+      // 5. ResetPassword
+      const fallbackResetToken = jwt.sign({ email: 'johnfallback@example.com' }, 'secret');
+      const mockUserResetInstance = {
+        email: 'johnfallback@example.com',
+        password: 'oldpassword',
+        resetPasswordToken: fallbackResetToken,
+        save: jest.fn().mockResolvedValue({}),
+      };
+      jest.spyOn(User, 'findOne').mockResolvedValue(mockUserResetInstance);
+      jest.spyOn(bcrypt, 'genSalt').mockResolvedValue('salt');
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('newhashedpassword');
+
+      const resetRes = await request(app)
+        .put(`/api/auth/reset-password/${fallbackResetToken}`)
+        .send({ password: 'newpassword123' });
+      expect(resetRes.status).toBe(200);
     });
   });
 });

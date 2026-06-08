@@ -110,4 +110,60 @@ describe('carbonApi service', () => {
       await expect(saveResult(payload)).rejects.toThrow('Server Error');
     });
   });
+
+  describe('with token in localStorage', () => {
+    beforeEach(() => {
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue('mock-token');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('calls calculateEmission with Authorization header', async () => {
+      axios.post.mockResolvedValue({ data: {} });
+      await calculateEmission({ test: 'data' });
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer mock-token' },
+        })
+      );
+    });
+
+    test('calls getHistory with Authorization header', async () => {
+      axios.get.mockResolvedValue({ data: {} });
+      await getHistory();
+      expect(axios.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer mock-token' },
+        })
+      );
+    });
+
+    test('calls getSummary with Authorization header', async () => {
+      axios.get.mockResolvedValue({ data: {} });
+      await getSummary();
+      expect(axios.get).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer mock-token' },
+        })
+      );
+    });
+
+    test('calls saveResult with Authorization header', async () => {
+      axios.post.mockResolvedValue({ data: {} });
+      await saveResult({ test: 'data' });
+      expect(axios.post).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Object),
+        expect.objectContaining({
+          headers: { Authorization: 'Bearer mock-token' },
+        })
+      );
+    });
+  });
 });

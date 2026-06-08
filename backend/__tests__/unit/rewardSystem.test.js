@@ -54,4 +54,10 @@ describe('rewardSystem utility', () => {
     const expensiveReward = { cost: 50 };
     expect(() => applyRedemption(userPoor, expensiveReward)).toThrow('Insufficient points');
   });
+
+  test('canRedeemReward() fallback: handles null or undefined points/cost', () => {
+    expect(canRedeemReward(null, 50)).toBe(false);
+    expect(canRedeemReward(10, null)).toBe(true);
+    expect(canRedeemReward(null, null)).toBe(true);
+  });
 });

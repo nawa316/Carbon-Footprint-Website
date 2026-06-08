@@ -127,4 +127,48 @@ describe('authMiddleware', () => {
       message: 'Format is Bearer <token>',
     });
   });
+
+  test('returns 401 if token is null or missing', async () => {
+    const req1 = {
+      headers: {
+        authorization: 'Bearer null',
+      },
+    };
+    const res1 = createResponseMock();
+    const next1 = jest.fn();
+    await authenticateToken(req1, res1, next1);
+    expect(res1.status).toHaveBeenCalledWith(401);
+    expect(res1.json).toHaveBeenCalledWith({
+      error: 'Unauthorized',
+      message: 'Token is missing',
+    });
+
+    const req2 = {
+      headers: {
+        authorization: 'Bearer ',
+      },
+    };
+    const res2 = createResponseMock();
+    const next2 = jest.fn();
+    await authenticateToken(req2, res2, next2);
+    expect(res2.status).toHaveBeenCalledWith(401);
+    expect(res2.json).toHaveBeenCalledWith({
+      error: 'Unauthorized',
+      message: 'Token is missing',
+    });
+  });
+
+  test('enters catch block and returns 401 if req is malformed (no headers object)', async () => {
+    const req = {};
+    const res = createResponseMock();
+    const next = jest.fn();
+    await authenticateToken(req, res, next);
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: 'Unauthorized',
+        message: expect.any(String),
+      })
+    );
+  });
 });

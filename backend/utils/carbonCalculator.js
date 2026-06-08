@@ -57,7 +57,7 @@ export const calculateEmissions = ({
   // 🚗 **Transport Emissions**
   let transportEmissions = 0;
   if (mode === 'car' && driveFrequency) {
-    transportEmissions = (dailyDistance || 0) * (EMISSION_FACTORS.transport.car || 0);
+    transportEmissions = (dailyDistance || 0) * EMISSION_FACTORS.transport.car;
     const passengerCount = parseInt(noOfPassenger) || 1;
     if (carpool === 'yes' && passengerCount > 0) {
       transportEmissions /= passengerCount;
