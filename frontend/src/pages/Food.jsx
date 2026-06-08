@@ -115,7 +115,7 @@ const Food = ({ setActiveSection }) => {
     if (nextIndex < foodQuestions.length) {
       setCurrentQuestionIndex(nextIndex);
     } else {
-      setActiveSection('Result'); // Move to the Result page
+      setActiveSection('Waste'); // Move to the Waste page
     }
   };
 

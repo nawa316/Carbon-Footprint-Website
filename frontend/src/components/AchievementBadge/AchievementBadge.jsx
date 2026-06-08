@@ -10,6 +10,8 @@ import {
   Star,
   Lock,
   CheckCircle,
+  Trash2,
+  Award,
 } from 'lucide-react';
 import './AchievementBadge.css';
 
@@ -23,6 +25,8 @@ const ICON_MAP = {
   Zap,
   TrendingDown,
   Star,
+  Trash2,
+  Award,
 };
 
 const AchievementBadge = ({ achievement, isUnlocked = false, showProgress = false }) => {

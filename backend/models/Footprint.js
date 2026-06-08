@@ -34,6 +34,11 @@ const FootPrintSchema = new mongoose.Schema({
     min: 0,
     default: 0,
   },
+  waste: {
+    type: Number,
+    min: 0,
+    default: 0,
+  },
   total: {
     type: Number,
     min: 0,

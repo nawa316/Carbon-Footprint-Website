@@ -432,7 +432,7 @@ const Result = () => {
     }
   };
 
-  const COLORS = ['#3B322C', '#4E6151', '#5E8C61', '#76B98F'];
+  const COLORS = ['#3B322C', '#4E6151', '#5E8C61', '#76B98F', '#A39171'];
 
   const tipsWithIcons = [
     { text: 'Use public transport or carpool to reduce emissions.', icon: <Bus size={24} /> },
@@ -462,6 +462,7 @@ const Result = () => {
     electricity: <Bolt size={24} color="#5E8C61" />,
     food: <Utensils size={24} color="#5E8C61" />,
     shopping: <ShoppingBag size={24} color="#5E8C61" />,
+    waste: <Trash2 size={24} color="#5E8C61" />,
   };
 
   const formatLabel = (label) => label.replace(/([A-Z])/g, ' $1').trim(); // Convert camelCase to readable text
@@ -752,6 +753,16 @@ const Result = () => {
                   </button>
                 </motion.div>
               </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Result;
+   </div>
             </>
           )}
         </div>

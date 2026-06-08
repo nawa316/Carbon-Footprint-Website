@@ -65,6 +65,7 @@ import Shopping from '../../pages/Shopping';
 import Transport from '../../pages/Transport';
 import Electricity from '../../pages/Electricity';
 import Food from '../../pages/Food';
+import Waste from '../../pages/Waste';
 import Result from '../../pages/Result';
 import './ContentBox.css';
 
@@ -75,6 +76,7 @@ const ContentBox = ({ activeSection, setActiveSection }) => {
       {activeSection === 'Transport' && <Transport setActiveSection={setActiveSection} />}
       {activeSection === 'Electricity' && <Electricity setActiveSection={setActiveSection} />}
       {activeSection === 'Food' && <Food setActiveSection={setActiveSection} />}
+      {activeSection === 'Waste' && <Waste setActiveSection={setActiveSection} />}
       {activeSection === 'Result' && <Result setActiveSection={setActiveSection} />}
     </div>
   );

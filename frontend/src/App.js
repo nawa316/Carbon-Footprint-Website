@@ -32,6 +32,8 @@ import Sidebar from './components/Sidebar/Sidebar';
 import ContentBox from './components/ContentBox/ContentBox';
 import Home from './pages/Home/Home'; // Import Home Page
 import LoginSignup from './pages/Auth/LoginSignup';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
 import Profile from './pages/Profile/Profile';
 import Redeem from './pages/Redeem/Redeem';
 import About from './pages/About/About';
@@ -63,6 +65,8 @@ function App() {
                 }
               />
               <Route path="/auth" element={<LoginSignup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
               <Route path="/redeem" element={<Redeem />} />
               <Route path="/about" element={<About />} />
               <Route path="/carbonInfo" element={<CarbonInfo />} />

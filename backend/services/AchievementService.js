@@ -320,6 +320,17 @@ export const initializeDefaultAchievements = async () => {
         color: '#d62828',
       },
       {
+        badgeId: 'zero_waste_hero',
+        name: 'Zero Waste Hero',
+        description: 'Achieve very low waste emissions in a single day',
+        icon: 'Trash2',
+        category: 'reduction',
+        criteria: { type: 'waste_minimum', value: 0.5 },
+        rarity: 'rare',
+        points: 40,
+        color: '#ffb703',
+      },
+      {
         badgeId: 'eco_leader',
         name: 'Eco Leader',
         description: 'Reach top 10 on the leaderboard',
@@ -329,6 +340,17 @@ export const initializeDefaultAchievements = async () => {
         rarity: 'epic',
         points: 100,
         color: '#ff006e',
+      },
+      {
+        badgeId: 'quiz_master',
+        name: 'Quiz Master',
+        description: 'Earn 150 eco points through active tracking',
+        icon: 'Award',
+        category: 'gamification',
+        criteria: { type: 'total_points', value: 150 },
+        rarity: 'epic',
+        points: 50,
+        color: '#9d4edd',
       },
     ];
 

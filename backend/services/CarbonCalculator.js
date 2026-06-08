@@ -178,10 +178,19 @@ const calculateEmissions = ({
     shoppingEmissions *= 0.5;
   }
 
-  // 🌍 **Total Carbon Footprint**
-  const total = transportEmissions + electricityEmissions + foodEmissions + shoppingEmissions;
+  // 🗑️ **Waste Emissions**
+  let wasteEmissions = 0;
+  if (wasteSeparation) {
+    wasteEmissions += EMISSION_FACTORS.waste.separation[wasteSeparation] || 0;
+  }
+  if (composting) {
+    wasteEmissions += EMISSION_FACTORS.waste.compost[composting] || 0;
+  }
 
-  return { transportEmissions, electricityEmissions, foodEmissions, shoppingEmissions, total };
+  // 🌍 **Total Carbon Footprint**
+  const total = transportEmissions + electricityEmissions + foodEmissions + shoppingEmissions + wasteEmissions;
+
+  return { transportEmissions, electricityEmissions, foodEmissions, shoppingEmissions, wasteEmissions, total };
 };
 
 export default calculateEmissions;
