@@ -19,11 +19,24 @@ const register = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Missing Details' });
   }
 
+  // Email format validation
+  const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ success: false, message: 'Invalid email format' });
+  }
+
+  // Password length validation
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Password must be at least 6 characters' });
+  }
+
   try {
     // checking if exists;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists!' });
+      return res.status(409).json({ success: false, message: 'User already exists!' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -68,7 +81,7 @@ const register = async (req, res) => {
     }
     await user.save();
 
-    res.status(201).json({ success: true, message: 'User registered successfully.' });
+    res.status(201).json({ success: true, message: 'User registered successfully.', token });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -77,9 +90,16 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+    if (!password) {
+      return res.status(400).json({ success: false, message: 'Password is required' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     if (!user.verified) {
@@ -87,7 +107,7 @@ const login = async (req, res) => {
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secret', {
       expiresIn: '3h',
@@ -95,7 +115,22 @@ const login = async (req, res) => {
 
     return res.json({ success: true, token, user, message: `Login successful Token : ${token}` });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -165,4 +200,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-export default { register, login, verifyEmail, resetPassword, forgotPassword };
+export default { register, login, getMe, verifyEmail, resetPassword, forgotPassword };

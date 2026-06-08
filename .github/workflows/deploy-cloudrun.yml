@@ -58,30 +58,87 @@ jobs:
           npm run format:check
           npm run lint
 
-  test:
+  test-unit:
     needs: [detect-changes, lint]
     runs-on: ubuntu-latest
     if: needs.lint.result == 'success'
     steps:
       - uses: actions/checkout@v4
 
-      - name: 'Backend Tests with Coverage'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 'Backend Unit Tests'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:unit -- --coverage --coverageThreshold='{"global":{"statements":0,"branches":0,"functions":0,"lines":0}}'
+
+      - name: 'Frontend Unit Tests'
+        if: needs.detect-changes.outputs.frontend == 'true'
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run test:unit -- --coverage --coverageThreshold='{"global":{"statements":0,"branches":0,"functions":0,"lines":0}}'
+
+  test-integration:
+    needs: [detect-changes, lint]
+    runs-on: ubuntu-latest
+    if: needs.lint.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 'Backend Integration Tests'
+        if: needs.detect-changes.outputs.backend == 'true'
+        working-directory: backend
+        run: |
+          npm ci
+          npm run test:integration -- --coverage --coverageThreshold='{"global":{"statements":0,"branches":0,"functions":0,"lines":0}}'
+
+  coverage-summary:
+    needs: [detect-changes, test-unit, test-integration]
+    runs-on: ubuntu-latest
+    if: |
+      always() &&
+      (needs.test-unit.result == 'success' || needs.test-unit.result == 'skipped') &&
+      (needs.test-integration.result == 'success' || needs.test-integration.result == 'skipped')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 'Run Full Backend Tests for Enforced Coverage'
         if: needs.detect-changes.outputs.backend == 'true'
         working-directory: backend
         run: |
           npm ci
           npm run test:ci
 
-      - name: 'Frontend Tests with Coverage'
+      - name: 'Run Full Frontend Tests for Enforced Coverage'
         if: needs.detect-changes.outputs.frontend == 'true'
         working-directory: frontend
         run: |
           npm ci
           npm run test:ci
 
+      - name: 'Generate and Upload Coverage Step Summary'
+        run: |
+          node parse-coverage.js
+
   deploy-backend:
-    needs: [detect-changes, lint, test]
-    if: needs.detect-changes.outputs.backend == 'true' && needs.test.result == 'success'
+    needs: [detect-changes, lint, coverage-summary]
+    if: needs.detect-changes.outputs.backend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -120,8 +177,8 @@ jobs:
             --set-env-vars="MONGO_URI=${{ secrets.MONGO_URI }},JWT_SECRET=${{ secrets.JWT_SECRET }},EMAIL_USER=${{ secrets.EMAIL_USER }},EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }},GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }},BACKEND_BASE_URL=${{ secrets.BACKEND_BASE_URL }},FRONTEND_BASE_URL=${{ secrets.FRONTEND_BASE_URL }}"
 
   deploy-frontend:
-    needs: [detect-changes, lint, test]
-    if: needs.detect-changes.outputs.frontend == 'true' && needs.test.result == 'success'
+    needs: [detect-changes, lint, coverage-summary]
+    if: needs.detect-changes.outputs.frontend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
