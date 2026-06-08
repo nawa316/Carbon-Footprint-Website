@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - main
+      - sinta-add-coverage-testing
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-cloudrun.yml'
+  pull_request:
+    branches:
+      - main
     paths:
       - 'backend/**'
       - 'frontend/**'
@@ -138,7 +146,7 @@ jobs:
 
   deploy-backend:
     needs: [detect-changes, lint, coverage-summary]
-    if: needs.detect-changes.outputs.backend == 'true' && needs.coverage-summary.result == 'success'
+    if: github.ref == 'refs/heads/main' && needs.detect-changes.outputs.backend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -178,7 +186,7 @@ jobs:
 
   deploy-frontend:
     needs: [detect-changes, lint, coverage-summary]
-    if: needs.detect-changes.outputs.frontend == 'true' && needs.coverage-summary.result == 'success'
+    if: github.ref == 'refs/heads/main' && needs.detect-changes.outputs.frontend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
