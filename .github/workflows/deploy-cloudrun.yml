@@ -24,6 +24,7 @@ env:
   BACKEND_IMAGE_NAME: sustainatrack-be
   FRONTEND_SERVICE_NAME: sustainatrack-frontend
   FRONTEND_IMAGE_NAME: sustainatrack-fe
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   detect-changes:
