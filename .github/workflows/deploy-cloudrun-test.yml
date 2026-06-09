@@ -1,28 +1,21 @@
-name: Build & Deploy to Cloud Run
+name: Build & Deploy to Cloud Run (Test Environment)
 
 on:
   push:
     branches:
-      - main
+      - test
     paths:
       - 'backend/**'
       - 'frontend/**'
-      - '.github/workflows/deploy-cloudrun.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - '.github/workflows/deploy-cloudrun.yml'
+      - '.github/workflows/deploy-cloudrun-test.yml'
   workflow_dispatch:
 
 env:
   REGION: asia-southeast1
-  BACKEND_SERVICE_NAME: sustainatrack-backend
-  BACKEND_IMAGE_NAME: sustainatrack-be
-  FRONTEND_SERVICE_NAME: sustainatrack-frontend
-  FRONTEND_IMAGE_NAME: sustainatrack-fe
+  BACKEND_SERVICE_NAME: sustainatrack-backend-test
+  BACKEND_IMAGE_NAME: sustainatrack-be-test
+  FRONTEND_SERVICE_NAME: sustainatrack-frontend-test
+  FRONTEND_IMAGE_NAME: sustainatrack-fe-test
 
 jobs:
   detect-changes:
@@ -145,7 +138,7 @@ jobs:
 
   deploy-backend:
     needs: [detect-changes, lint, coverage-summary]
-    if: github.ref == 'refs/heads/main' && needs.detect-changes.outputs.backend == 'true' && needs.coverage-summary.result == 'success'
+    if: github.ref == 'refs/heads/test' && needs.detect-changes.outputs.backend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -175,13 +168,13 @@ jobs:
 
       - name: Deploy ke Cloud Run
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
-          FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL }}
+          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER_TEST }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD_TEST }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_TEST }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL_TEST }}
+          FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL_TEST }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
@@ -198,7 +191,7 @@ jobs:
 
   deploy-frontend:
     needs: [detect-changes, lint, coverage-summary]
-    if: github.ref == 'refs/heads/main' && needs.detect-changes.outputs.frontend == 'true' && needs.coverage-summary.result == 'success'
+    if: github.ref == 'refs/heads/test' && needs.detect-changes.outputs.frontend == 'true' && needs.coverage-summary.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -221,7 +214,7 @@ jobs:
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
-          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL_TEST }}
         run: |
           IMAGE="$REGION-docker.pkg.dev/$GCP_PROJECT_ID/$ARTIFACT_REPO/$FRONTEND_IMAGE_NAME"
           docker build \
