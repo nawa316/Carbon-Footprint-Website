@@ -91,6 +91,9 @@ const calculateEmissions = ({
   homeFurniture,
   applianceReplacement,
   ecoFriendly,
+  wasteSeparation,
+  composting,
+  plasticUsage,
 }) => {
   const EMISSION_FACTORS = {
     transport: {
@@ -125,6 +128,11 @@ const calculateEmissions = ({
       medium_electronics: { rarely: 60, occasionally: 150, frequently: 300 }, // Laptops, TVs
       home_furniture: { rarely: 15, occasionally: 30, frequently: 60 }, // Chairs, tables, beds
       large_appliances: { 'when broken': 100, '5-10 years': 250, '3-5 years': 400 }, // Refrigerators, washing machines
+    },
+    waste: {
+      separation: { always: 0, sometimes: 1.5, never: 3.0 },
+      compost: { yes: 0, no: 1.5 },
+      plastic: { rarely: 0.5, occasionally: 1.5, frequently: 3.0 },
     },
   };
 
@@ -180,13 +188,15 @@ const calculateEmissions = ({
 
   // 🗑️ **Waste Emissions**
   let wasteEmissions = 0;
-  // TODO: Add waste parameters and emission factors
-  // if (wasteSeparation) {
-  //   wasteEmissions += EMISSION_FACTORS.waste.separation[wasteSeparation] || 0;
-  // }
-  // if (composting) {
-  //   wasteEmissions += EMISSION_FACTORS.waste.compost[composting] || 0;
-  // }
+  if (wasteSeparation) {
+    wasteEmissions += EMISSION_FACTORS.waste.separation[wasteSeparation] || 0;
+  }
+  if (composting) {
+    wasteEmissions += EMISSION_FACTORS.waste.compost[composting] || 0;
+  }
+  if (plasticUsage) {
+    wasteEmissions += EMISSION_FACTORS.waste.plastic[plasticUsage] || 0;
+  }
 
   // 🌍 **Total Carbon Footprint**
   const total =
