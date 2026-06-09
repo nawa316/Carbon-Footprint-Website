@@ -6,9 +6,10 @@ const BACKEND_BASE_URL = (
   process.env.BACKEND_BASE_URL || `http://localhost:${process.env.PORT || 5000}`
 ).replace(/\/$/, '');
 
-const FRONTEND_BASE_URL = (
-  process.env.FRONTEND_BASE_URL || `http://localhost:3000`
-).replace(/\/$/, '');
+const FRONTEND_BASE_URL = (process.env.FRONTEND_BASE_URL || `http://localhost:3000`).replace(
+  /\/$/,
+  ''
+);
 
 const TOKEN = process.env.MAILTRAP_TOKEN || 'a9a3bba22934bdca2227d8dbcc4cbb45'; // fallback token for testing if env not set
 
