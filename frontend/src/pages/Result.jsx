@@ -358,6 +358,7 @@ import {
   ShoppingCart,
   Wind,
   Plane,
+  Trash2,
 } from 'lucide-react';
 // import FootprintProgress from "./FootprintProgress";
 import Confetti from 'react-confetti';
@@ -766,16 +767,6 @@ const Result = () => {
                   </button>
                 </motion.div>
               </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Result;
-   </div>
             </>
           )}
         </div>

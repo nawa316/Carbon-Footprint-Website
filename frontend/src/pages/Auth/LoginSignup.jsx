@@ -198,11 +198,13 @@
 // export default AuthPage;
 
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import './LoginSignup.css';
 import { apiUrl } from '../../config/api';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -422,7 +424,11 @@ const AuthPage = () => {
                 required
               />
             </div>
-            <span className="forgot" onClick={() => navigate('/forgot-password')} style={{cursor: 'pointer', marginTop: '10px'}}>
+            <span
+              className="forgot"
+              onClick={() => navigate('/forgot-password')}
+              style={{ cursor: 'pointer', marginTop: '10px' }}
+            >
               Forgot your password?
             </span>
             <button className="ghostBtn" type="submit">

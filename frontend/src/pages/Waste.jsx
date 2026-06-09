@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useUserInput } from '../context/UserInputContext';
 import { Trash2 } from 'lucide-react';
 import QuizSection from './QuizSection';
 

@@ -51,7 +51,12 @@ const ForgotPassword = () => {
             <button type="submit" disabled={loading}>
               {loading ? 'Sending...' : 'Send Reset Link'}
             </button>
-            <p style={{marginTop: '20px', cursor: 'pointer', color: '#5E8C61'}} onClick={() => navigate('/auth')}>Back to Login</p>
+            <p
+              style={{ marginTop: '20px', cursor: 'pointer', color: '#5E8C61' }}
+              onClick={() => navigate('/auth')}
+            >
+              Back to Login
+            </p>
           </form>
         </div>
       </div>
