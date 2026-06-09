@@ -180,18 +180,26 @@ const calculateEmissions = ({
 
   // 🗑️ **Waste Emissions**
   let wasteEmissions = 0;
-  if (wasteSeparation) {
-    wasteEmissions += EMISSION_FACTORS.waste.separation[wasteSeparation] || 0;
-  }
-  if (composting) {
-    wasteEmissions += EMISSION_FACTORS.waste.compost[composting] || 0;
-  }
+  // TODO: Add waste parameters and emission factors
+  // if (wasteSeparation) {
+  //   wasteEmissions += EMISSION_FACTORS.waste.separation[wasteSeparation] || 0;
+  // }
+  // if (composting) {
+  //   wasteEmissions += EMISSION_FACTORS.waste.compost[composting] || 0;
+  // }
 
   // 🌍 **Total Carbon Footprint**
-  const total = transportEmissions + electricityEmissions + foodEmissions + shoppingEmissions + wasteEmissions;
+  const total =
+    transportEmissions + electricityEmissions + foodEmissions + shoppingEmissions + wasteEmissions;
 
-  return { transportEmissions, electricityEmissions, foodEmissions, shoppingEmissions, wasteEmissions, total };
+  return {
+    transportEmissions,
+    electricityEmissions,
+    foodEmissions,
+    shoppingEmissions,
+    wasteEmissions,
+    total,
+  };
 };
 
-export { getEmissionGrade, calculatePoints };
 export default calculateEmissions;
