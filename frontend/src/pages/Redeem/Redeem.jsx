@@ -55,7 +55,7 @@ import { CreditCard, Gift, Award, Sparkles } from 'lucide-react';
 import './Redeem.css';
 import { apiUrl } from '../../config/api';
 
-const Redeem = () => {
+const Redeem = ({ onRedeem }) => {
   const [points, setPoints] = useState(0);
 
   const getPoints = async () => {
@@ -89,7 +89,12 @@ const Redeem = () => {
     { id: 4, name: 'Public Transport Pass', points: 2500, logo: 'G' },
   ];
 
-  const handleRedeem = async (pointsToRedeem) => {
+  const handleRedeem = async (card) => {
+    if (onRedeem) {
+      onRedeem(card);
+      return;
+    }
+    const pointsToRedeem = card.points;
     const token = localStorage.getItem('token');
 
     if (!token) {
@@ -171,7 +176,7 @@ const Redeem = () => {
               <button
                 className="redeem-button"
                 disabled={points < card.points}
-                onClick={() => handleRedeem(card.points)}
+                onClick={() => handleRedeem(card)}
               >
                 <CreditCard size={16} />
                 <span>Redeem</span>

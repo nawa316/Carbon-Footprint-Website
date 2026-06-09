@@ -364,6 +364,7 @@ import Confetti from 'react-confetti';
 import { motion } from 'framer-motion';
 import { apiUrl } from '../config/api';
 import { showAchievementNotifications } from '../components/AchievementNotification/AchievementNotification';
+import { calculateEmission } from '../services/carbonApi';
 
 const Result = () => {
   const { userData } = useUserInput();
@@ -399,25 +400,13 @@ const Result = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token'); // Retrieve token
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      const res = await fetch(apiUrl('/api/footprint/calculate'), {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(userData),
-      });
-      if (!res.ok) {
-        throw new Error('Server error: ' + (await res.text()));
-      }
-      const data = await res.json();
+      const data = await calculateEmission(userData);
       setResponse(data);
 
+      const token = localStorage.getItem('token');
       if (token) {
-        let pointsEarned = Math.max(0, Math.min(100, 100 - (data.footprint.total / 800) * 100));
+        const total = data.footprint?.total || data.totalEmission || 0;
+        let pointsEarned = Math.max(0, Math.min(100, 100 - (total / 800) * 100));
         updateRewardPoints(Math.round(pointsEarned));
       }
 
@@ -548,9 +537,17 @@ const Result = () => {
 
       {response && (
         <div>
-          <h2 style={{ marginTop: '20px' }}>
-            Total Carbon Footprint: {response?.footprint?.total} kg CO₂
+          <h2 style={{ marginTop: '20px' }} data-testid="total-emission">
+            Total Carbon Footprint: {response?.footprint?.total ?? response?.totalEmission} kg CO₂
           </h2>
+          {response?.grade && (
+            <h3 style={{ marginTop: '10px' }} data-testid="grade">
+              Grade: {response.grade}
+            </h3>
+          )}
+          {response?.points !== undefined && (
+            <h3 style={{ marginTop: '10px' }}>Points: {response.points}</h3>
+          )}
           {/* <FootprintProgress percentage={(response?.footprint?.total / 800) * 100} /> */}
 
           <button
@@ -582,10 +579,24 @@ const Result = () => {
             <PieChart width={350} height={350}>
               <Pie
                 data={[
-                  { name: 'Transport', value: response?.footprint?.transportEmissions },
-                  { name: 'Electricity', value: response?.footprint?.electricityEmissions },
-                  { name: 'Food', value: response?.footprint?.foodEmissions },
-                  { name: 'Shopping', value: response?.footprint?.shoppingEmissions },
+                  {
+                    name: 'Transport',
+                    value:
+                      response?.footprint?.transportEmissions ?? response?.breakdown?.transport,
+                  },
+                  {
+                    name: 'Electricity',
+                    value:
+                      response?.footprint?.electricityEmissions ?? response?.breakdown?.electricity,
+                  },
+                  {
+                    name: 'Food',
+                    value: response?.footprint?.foodEmissions ?? response?.breakdown?.food,
+                  },
+                  {
+                    name: 'Shopping',
+                    value: response?.footprint?.shoppingEmissions ?? response?.breakdown?.shopping,
+                  },
                 ]}
                 cx="50%"
                 cy="50%"
@@ -607,19 +618,21 @@ const Result = () => {
               <h3>Breakdown:</h3>
               <ul style={{ listStyle: 'none', padding: 0 }}>
                 <li>
-                  <Car size={18} /> <b>Transport:</b> {response?.footprint?.transportEmissions} kg
+                  <Car size={18} /> <b>Transport:</b>{' '}
+                  {response?.footprint?.transportEmissions ?? response?.breakdown?.transport} kg CO₂
+                </li>
+                <li>
+                  <Bolt size={18} /> <b>Electricity:</b>{' '}
+                  {response?.footprint?.electricityEmissions ?? response?.breakdown?.electricity} kg
                   CO₂
                 </li>
                 <li>
-                  <Bolt size={18} /> <b>Electricity:</b> {response?.footprint?.electricityEmissions}{' '}
-                  kg CO₂
-                </li>
-                <li>
-                  <Utensils size={18} /> <b>Food:</b> {response?.footprint?.foodEmissions} kg CO₂
+                  <Utensils size={18} /> <b>Food:</b>{' '}
+                  {response?.footprint?.foodEmissions ?? response?.breakdown?.food} kg CO₂
                 </li>
                 <li>
                   <ShoppingBag size={18} /> <b>Shopping:</b>{' '}
-                  {response?.footprint?.shoppingEmissions} kg CO₂
+                  {response?.footprint?.shoppingEmissions ?? response?.breakdown?.shopping} kg CO₂
                 </li>
               </ul>
             </div>
