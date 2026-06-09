@@ -422,9 +422,9 @@ const AuthPage = () => {
                 required
               />
             </div>
-            <a href="/" className="forgot">
+            <span className="forgot" onClick={() => navigate('/forgot-password')} style={{cursor: 'pointer', marginTop: '10px'}}>
               Forgot your password?
-            </a>
+            </span>
             <button className="ghostBtn" type="submit">
               Sign In
             </button>

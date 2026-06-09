@@ -37,6 +37,7 @@ const AchievementSchema = new mongoose.Schema({
         'single_day_minimum',
         'food_choice',
         'footprint_reduction',
+        'waste_minimum',
       ],
       required: true,
     },

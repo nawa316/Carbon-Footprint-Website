@@ -149,7 +149,7 @@
 
 import React, { useEffect, useState } from 'react';
 import './Sidebar.css';
-import { ShoppingBag, Car, Bolt, Utensils, BarChart } from 'lucide-react';
+import { ShoppingBag, Car, Bolt, Utensils, Trash2, BarChart } from 'lucide-react';
 
 const Sidebar = ({ activeSection, setActiveSection }) => {
   const [active, setActive] = useState(localStorage.getItem('activeSection') || 'Shopping');
@@ -189,6 +189,9 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
         </li>
         <li className={active === 'Food' ? 'active' : ''} onClick={() => handleClick('Food')}>
           <Utensils size={20} strokeWidth={1.5} /> Food
+        </li>
+        <li className={active === 'Waste' ? 'active' : ''} onClick={() => handleClick('Waste')}>
+          <Trash2 size={20} strokeWidth={1.5} /> Waste
         </li>
         <li className={active === 'Result' ? 'active' : ''} onClick={() => handleClick('Result')}>
           <BarChart size={20} strokeWidth={1.5} /> Result
