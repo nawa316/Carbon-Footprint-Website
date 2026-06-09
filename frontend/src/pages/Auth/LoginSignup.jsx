@@ -197,7 +197,7 @@
 
 // export default AuthPage;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import './LoginSignup.css';
@@ -208,6 +208,13 @@ const AuthPage = () => {
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
   const [loginData, setLoginData] = useState({ email: '', password: '' });
+  const loginTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (loginTimeoutRef.current) clearTimeout(loginTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -325,7 +332,7 @@ const AuthPage = () => {
         const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/';
         localStorage.removeItem('redirectAfterLogin'); // Clear after use
 
-        setTimeout(() => {
+        loginTimeoutRef.current = setTimeout(() => {
           window.location.href = redirectUrl; // Redirect to the stored URL
         }, 1000); // Give user time to see the success message
       } else {

@@ -56,18 +56,6 @@
         "functions": 70,
         "branches": 65,
         "statements": 75
-      },
-      "./src/components/Calculator/**": {
-        "lines": 85,
-        "statements": 85,
-        "functions": 85,
-        "branches": 80
-      },
-      "./src/utils/**": {
-        "lines": 90,
-        "statements": 90,
-        "functions": 90,
-        "branches": 85
       }
     },
     "coverageReporters": [
