@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AuthPage from '../../pages/Auth/LoginSignup';
 import Swal from 'sweetalert2';
+import { BrowserRouter } from 'react-router-dom';
 
 // Mock sweetalert2
 jest.mock('sweetalert2', () => ({
@@ -37,7 +38,11 @@ describe('AuthPage Component', () => {
 
   describe('Login Form', () => {
     test('renders email input, password input, submit button, and link to register', () => {
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       // Under sign-in container
       const emailInputs = screen.queryAllByPlaceholderText(/Email/i);
@@ -59,7 +64,11 @@ describe('AuthPage Component', () => {
         json: async () => ({ success: true, token: 'fake-token' }),
       });
 
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       // Fill in Sign In form
       const emailInput = screen.queryAllByPlaceholderText(/Email/i)[1]; // Second input is in Sign In
@@ -87,7 +96,11 @@ describe('AuthPage Component', () => {
         json: async () => ({ success: false, message: 'Invalid credentials' }),
       });
 
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       const emailInput = screen.queryAllByPlaceholderText(/Email/i)[1];
       const passwordInput = screen.queryAllByPlaceholderText(/Password/i)[1];
@@ -111,7 +124,11 @@ describe('AuthPage Component', () => {
   describe('Register Form', () => {
     test('renders name, email, password inputs and submit button', () => {
       // Toggle to registration panel by clicking overlay Sign Up button
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       const signUpOverlayBtn = getSignUpOverlayBtn();
       if (signUpOverlayBtn) {
@@ -137,7 +154,11 @@ describe('AuthPage Component', () => {
         json: async () => ({ success: true, message: 'Registered!' }),
       });
 
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       // Switch to register panel
       const signUpOverlayBtn = getSignUpOverlayBtn();
@@ -172,7 +193,11 @@ describe('AuthPage Component', () => {
         json: async () => ({ success: false, message: 'Email already exists' }),
       });
 
-      render(<AuthPage />);
+      render(
+        <BrowserRouter>
+          <AuthPage />
+        </BrowserRouter>
+      );
 
       // Switch to register panel
       const signUpOverlayBtn = getSignUpOverlayBtn();
