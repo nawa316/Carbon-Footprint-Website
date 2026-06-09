@@ -1,4 +1,4 @@
-import { MailtrapClient } from 'mailtrap';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,14 +11,17 @@ const FRONTEND_BASE_URL = (process.env.FRONTEND_BASE_URL || `http://localhost:30
   ''
 );
 
-const TOKEN = process.env.MAILTRAP_TOKEN || 'a9a3bba22934bdca2227d8dbcc4cbb45'; // fallback token for testing if env not set
-
-const client = new MailtrapClient({
-  token: TOKEN,
+const transporter = nodemailer.createTransport({
+  host: process.env.MAILTRAP_HOST || 'live.smtp.mailtrap.io',
+  port: process.env.MAILTRAP_PORT || 587,
+  auth: {
+    user: process.env.MAILTRAP_USER || '',
+    pass: process.env.MAILTRAP_PASSWORD || '',
+  },
 });
 
 const sender = {
-  email: 'hello@demomailtrap.co',
+  email: process.env.MAILTRAP_EMAIL || 'hello@demomailtrap.co',
   name: 'Carbon Footprint App',
 };
 
@@ -26,13 +29,12 @@ export const sendVerificationMail = async (email, token) => {
   const verificationLink = `${BACKEND_BASE_URL}/api/auth/verify-email/${token}`;
 
   try {
-    await client.send({
-      from: sender,
-      to: [{ email }],
+    await transporter.sendMail({
+      from: `${sender.name} <${sender.email}>`,
+      to: email,
       subject: 'Verify your Email',
       html: `<p>Click the link below to verify your email:</p>
           <a href="${verificationLink}">${verificationLink}</a>`,
-      category: 'Email Verification',
     });
     console.log('Verification email sent to', email);
   } catch (error) {
@@ -41,16 +43,15 @@ export const sendVerificationMail = async (email, token) => {
 };
 
 export const sendResetPasswordMail = async (email, token) => {
-  const resetLink = `${FRONTEND_BASE_URL}/reset-password/${token}`; // Note: Redirects to frontend
+  const resetLink = `${FRONTEND_BASE_URL}/reset-password/${token}`;
 
   try {
-    await client.send({
-      from: sender,
-      to: [{ email }],
+    await transporter.sendMail({
+      from: `${sender.name} <${sender.email}>`,
+      to: email,
       subject: 'Reset your Password',
       html: `<p>Click the link below to reset your password:</p>
           <a href="${resetLink}">${resetLink}</a>`,
-      category: 'Password Reset',
     });
     console.log('Password reset email sent to', email);
   } catch (error) {
