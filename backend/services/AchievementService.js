@@ -238,9 +238,6 @@ export const getUserEarnedAchievements = async (userId) => {
 // Initialize default achievements (run once)
 export const initializeDefaultAchievements = async () => {
   try {
-    const existingCount = await Achievement.countDocuments();
-    if (existingCount > 0) return; // Already initialized
-
     const defaultAchievements = [
       {
         badgeId: 'first_step',
@@ -352,10 +349,71 @@ export const initializeDefaultAchievements = async () => {
         points: 50,
         color: '#9d4edd',
       },
+      {
+        badgeId: 'half_century',
+        name: 'Half Century',
+        description: 'Earn 50 eco points',
+        icon: 'Award',
+        category: 'gamification',
+        criteria: { type: 'total_points', value: 50 },
+        rarity: 'uncommon',
+        points: 20,
+        color: '#ff9f1c',
+      },
+      {
+        badgeId: 'century_club',
+        name: 'Century Club',
+        description: 'Track your footprint for 100 days',
+        icon: 'Calendar',
+        category: 'consistency',
+        criteria: { type: 'total_tracking_days', value: 100 },
+        rarity: 'epic',
+        points: 100,
+        color: '#e71d36',
+      },
+      {
+        badgeId: 'super_saver',
+        name: 'Super Saver',
+        description: 'Reduce your carbon footprint by 50% in 30 days',
+        icon: 'TrendingDown',
+        category: 'reduction',
+        criteria: { type: 'footprint_reduction', value: 50 },
+        rarity: 'legendary',
+        points: 150,
+        color: '#011627',
+      },
+      {
+        badgeId: 'top_3',
+        name: 'Podium Finish',
+        description: 'Reach top 3 on the leaderboard',
+        icon: 'Trophy',
+        category: 'community',
+        criteria: { type: 'leaderboard_rank', value: 3 },
+        rarity: 'legendary',
+        points: 200,
+        color: '#fdffb6',
+      },
+      {
+        badgeId: 'streak_master',
+        name: 'Streak Master',
+        description: 'Track for 30 consecutive days',
+        icon: 'Clock',
+        category: 'consistency',
+        criteria: { type: 'consecutive_days', value: 30 },
+        rarity: 'epic',
+        points: 100,
+        color: '#2ec4b6',
+      },
     ];
 
-    await Achievement.insertMany(defaultAchievements);
-    console.log('Default achievements initialized');
+    for (const achievement of defaultAchievements) {
+      await Achievement.updateOne(
+        { badgeId: achievement.badgeId },
+        { $set: achievement },
+        { upsert: true }
+      );
+    }
+    console.log('Default achievements initialized and updated');
   } catch (error) {
     console.error('Error initializing default achievements:', error);
   }
