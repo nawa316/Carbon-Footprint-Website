@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { MailtrapClient } from 'mailtrap';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -11,13 +11,10 @@ const FRONTEND_BASE_URL = (process.env.FRONTEND_BASE_URL || `http://localhost:30
   ''
 );
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAILTRAP_HOST || 'live.smtp.mailtrap.io',
-  port: process.env.MAILTRAP_PORT || 587,
-  auth: {
-    user: process.env.MAILTRAP_USER || '',
-    pass: process.env.MAILTRAP_PASSWORD || '',
-  },
+const TOKEN = process.env.MAILTRAP_TOKEN;
+
+const client = new MailtrapClient({
+  token: TOKEN,
 });
 
 const sender = {
@@ -29,9 +26,9 @@ export const sendVerificationMail = async (email, token) => {
   const verificationLink = `${BACKEND_BASE_URL}/api/auth/verify-email/${token}`;
 
   try {
-    await transporter.sendMail({
-      from: `${sender.name} <${sender.email}>`,
-      to: email,
+    await client.send({
+      from: sender,
+      to: [{ email }],
       subject: 'Verify your Email',
       html: `<p>Click the link below to verify your email:</p>
           <a href="${verificationLink}">${verificationLink}</a>`,
@@ -39,6 +36,7 @@ export const sendVerificationMail = async (email, token) => {
     console.log('Verification email sent to', email);
   } catch (error) {
     console.error('Error sending verification email:', error);
+    throw error;
   }
 };
 
@@ -46,9 +44,9 @@ export const sendResetPasswordMail = async (email, token) => {
   const resetLink = `${FRONTEND_BASE_URL}/reset-password/${token}`;
 
   try {
-    await transporter.sendMail({
-      from: `${sender.name} <${sender.email}>`,
-      to: email,
+    await client.send({
+      from: sender,
+      to: [{ email }],
       subject: 'Reset your Password',
       html: `<p>Click the link below to reset your password:</p>
           <a href="${resetLink}">${resetLink}</a>`,
@@ -56,5 +54,6 @@ export const sendResetPasswordMail = async (email, token) => {
     console.log('Password reset email sent to', email);
   } catch (error) {
     console.error('Error sending password reset email:', error);
+    throw error;
   }
 };
