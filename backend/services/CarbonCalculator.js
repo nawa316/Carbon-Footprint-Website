@@ -193,4 +193,5 @@ const calculateEmissions = ({
   return { transportEmissions, electricityEmissions, foodEmissions, shoppingEmissions, wasteEmissions, total };
 };
 
+export { getEmissionGrade, calculatePoints };
 export default calculateEmissions;

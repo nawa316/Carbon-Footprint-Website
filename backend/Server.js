@@ -9,6 +9,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import leaderboardRoutes from './routes/leaderboardRoutes.js';
 import achievementRoutes from './routes/achievementRoutes.js';
+import carbonRoute from './routes/carbonRoute.js';
 import { initializeDefaultAchievements } from './services/AchievementService.js';
 dotenv.config();
 const PORT = process.env.PORT || 5000;
@@ -37,6 +38,7 @@ const start = async () => {
     app.use('/api/bill', billRoute);
     app.use('/api/leaderboard', leaderboardRoutes);
     app.use('/api/achievement', achievementRoutes);
+    app.use('/api/carbon', carbonRoute);
 
     // Initialize default achievements
     await initializeDefaultAchievements();

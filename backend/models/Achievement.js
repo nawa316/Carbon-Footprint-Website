@@ -64,7 +64,6 @@ const AchievementSchema = new mongoose.Schema({
   },
 });
 
-AchievementSchema.index({ badgeId: 1 });
 AchievementSchema.index({ category: 1 });
 
 export default mongoose.model('Achievement', AchievementSchema);
