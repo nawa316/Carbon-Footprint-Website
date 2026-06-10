@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import './LoginSignup.css';
+import './PasswordReset.css';
 import { apiUrl } from '../../config/api';
 
 const ResetPassword = () => {
@@ -44,29 +44,31 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="container active" id="container">
-        <div className="form-container sign-in-container">
-          <form action="#" onSubmit={handleResetSubmit}>
-            <h1>Reset Password</h1>
-            <span>Enter your new password</span>
+    <div className="pr-body">
+      <div className="pr-card">
+        <h1>Reset Password</h1>
+        <p>Your new password must be different from previous used passwords.</p>
+        <form className="pr-form" onSubmit={handleResetSubmit}>
+          <div className="pr-input-group">
             <input
               type="password"
               placeholder="New Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+          </div>
+          <div className="pr-input-group">
             <input
               type="password"
               placeholder="Confirm New Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-            <button type="submit" disabled={loading}>
-              {loading ? 'Resetting...' : 'Reset Password'}
-            </button>
-          </form>
-        </div>
+          </div>
+          <button type="submit" className="pr-btn" disabled={loading}>
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import './LoginSignup.css';
+import './PasswordReset.css';
 import { apiUrl } from '../../config/api';
 
 const ForgotPassword = () => {
@@ -36,28 +36,25 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="container active" id="container">
-        <div className="form-container sign-in-container">
-          <form action="#" onSubmit={handleForgotSubmit}>
-            <h1>Forgot Password</h1>
-            <span>Enter your email to receive a reset link</span>
+    <div className="pr-body">
+      <div className="pr-card">
+        <h1>Forgot Password?</h1>
+        <p>No worries, we'll send you reset instructions to your registered email.</p>
+        <form className="pr-form" onSubmit={handleForgotSubmit}>
+          <div className="pr-input-group">
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button type="submit" disabled={loading}>
-              {loading ? 'Sending...' : 'Send Reset Link'}
-            </button>
-            <p
-              style={{ marginTop: '20px', cursor: 'pointer', color: '#5E8C61' }}
-              onClick={() => navigate('/auth')}
-            >
-              Back to Login
-            </p>
-          </form>
+          </div>
+          <button type="submit" className="pr-btn" disabled={loading}>
+            {loading ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
+        <div className="pr-link" onClick={() => navigate('/auth')}>
+          &larr; Back to Login
         </div>
       </div>
     </div>

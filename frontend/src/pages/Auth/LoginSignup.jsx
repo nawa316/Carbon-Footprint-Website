@@ -274,9 +274,9 @@ const AuthPage = () => {
           toast: true,
           position: 'top-end',
           icon: 'success',
-          title: data.message || 'Signup successful! Please log in.',
+          title: 'Signup successful! Please check your email to verify your account.',
           showConfirmButton: false,
-          timer: 3000,
+          timer: 5000,
           timerProgressBar: true,
         });
         setSignupData({ name: '', email: '', password: '' }); // Clear form
