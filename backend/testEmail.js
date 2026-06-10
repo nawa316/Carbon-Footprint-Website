@@ -1,5 +1,7 @@
 import { sendVerificationMail } from './config/nodemailer.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Test send verification email
 const testEmail = 'test@example.com';
@@ -10,11 +12,10 @@ const testToken = jwt.sign({ id: 'test123' }, process.env.JWT_SECRET || 'secret'
 console.log('Testing email send...');
 console.log('Email:', testEmail);
 console.log('Token:', testToken);
-console.log('Mailtrap Config:', {
-  host: process.env.MAILTRAP_HOST,
-  port: process.env.MAILTRAP_PORT,
-  user: process.env.MAILTRAP_USER ? '***' : 'NOT SET',
-  password: process.env.MAILTRAP_PASSWORD ? '***' : 'NOT SET',
+console.log('Mailgun Config:', {
+  login: process.env.MAILGUN_SMTP_LOGIN,
+  password: process.env.MAILGUN_SMTP_PASSWORD ? '***' : 'NOT SET',
+  sender: process.env.MAILGUN_SENDER_EMAIL || process.env.MAILGUN_SMTP_LOGIN,
 });
 
 sendVerificationMail(testEmail, testToken)
