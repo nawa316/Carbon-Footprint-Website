@@ -136,7 +136,7 @@ const checkTotalPoints = async (userId, requiredPoints) => {
   return user && user.points >= requiredPoints;
 };
 
-const checkQuizQuestions = async (userId, requiredQuestions) => {
+const checkQuizQuestions = async () => {
   // This assumes quiz data is stored somewhere - adjust based on your implementation
   // For now, returning false as a placeholder
   return false;

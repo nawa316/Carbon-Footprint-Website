@@ -26,7 +26,7 @@ export const calculate = async (req, res) => {
     const driveFrequency = transport?.driveFrequency || 'never';
     const meatFrequency = food?.meatFrequency || 'no';
     const dairyFrequency = food?.dairyFrequency || 'never';
-    const restaurantChoice = food?.restaurantChoice || 'no';
+
     const energyType = energy?.energyType || 'fossil';
     const purchaseCategory = shopping?.purchaseCategory || 'small_clothing';
     const shoppingFrequency = shopping?.shoppingFrequency || 'never';
