@@ -1,5 +1,3 @@
-import { API_BASE_URL, apiUrl } from './config/api';
-
 describe('api config helpers', () => {
   const originalEnv = process.env.REACT_APP_API_BASE_URL;
 
