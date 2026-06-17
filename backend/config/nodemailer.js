@@ -12,17 +12,17 @@ const FRONTEND_BASE_URL = (process.env.FRONTEND_BASE_URL || `http://localhost:30
 );
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.mailgun.org',
-  port: 587,
+  host: process.env.MAILTRAP_HOST || 'sandbox.smtp.mailtrap.io',
+  port: process.env.MAILTRAP_PORT || 2525,
   auth: {
-    user: process.env.MAILGUN_SMTP_LOGIN,
-    pass: process.env.MAILGUN_SMTP_PASSWORD,
+    user: process.env.MAILTRAP_USER,
+    pass: process.env.MAILTRAP_PASS,
   },
 });
 
 const sender = {
-  name: process.env.MAILGUN_SENDER_NAME || 'Carbon Footprint App',
-  address: process.env.MAILGUN_SENDER_EMAIL || process.env.MAILGUN_SMTP_LOGIN,
+  name: process.env.MAILTRAP_SENDER_NAME || 'Carbon Footprint App',
+  address: process.env.MAILTRAP_SENDER_EMAIL || 'hello@demomailtrap.co',
 };
 
 export const sendVerificationMail = async (email, token) => {

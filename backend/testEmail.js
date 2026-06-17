@@ -12,10 +12,11 @@ const testToken = jwt.sign({ id: 'test123' }, process.env.JWT_SECRET || 'secret'
 console.log('Testing email send...');
 console.log('Email:', testEmail);
 console.log('Token:', testToken);
-console.log('Mailgun Config:', {
-  login: process.env.MAILGUN_SMTP_LOGIN,
-  password: process.env.MAILGUN_SMTP_PASSWORD ? '***' : 'NOT SET',
-  sender: process.env.MAILGUN_SENDER_EMAIL || process.env.MAILGUN_SMTP_LOGIN,
+console.log('Mailtrap Config:', {
+  host: process.env.MAILTRAP_HOST,
+  user: process.env.MAILTRAP_USER,
+  pass: process.env.MAILTRAP_PASS ? '***' : 'NOT SET',
+  sender: process.env.MAILTRAP_SENDER_EMAIL,
 });
 
 sendVerificationMail(testEmail, testToken)
