@@ -12,6 +12,10 @@ import {
   CheckCircle,
   Trash2,
   Award,
+  Shield,
+  Crown,
+  Database,
+  Wind,
 } from 'lucide-react';
 import './AchievementBadge.css';
 
@@ -27,6 +31,10 @@ const ICON_MAP = {
   Star,
   Trash2,
   Award,
+  Shield,
+  Crown,
+  Database,
+  Wind,
 };
 
 const AchievementBadge = ({ achievement, isUnlocked = false, showProgress = false }) => {
