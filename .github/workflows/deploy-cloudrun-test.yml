@@ -168,13 +168,17 @@ jobs:
 
       - name: Deploy ke Cloud Run
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI_TEST }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER_TEST }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD_TEST }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY_TEST }}
-          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL_TEST }}
-          FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL_TEST }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          MAILGUN_SMTP_LOGIN: ${{ secrets.MAILGUN_SMTP_LOGIN }}
+          MAILGUN_SMTP_PASSWORD: ${{ secrets.MAILGUN_SMTP_PASSWORD }}
+          MAILGUN_SENDER_EMAIL: ${{ secrets.MAILGUN_SENDER_EMAIL }}
+          MAILGUN_SENDER_NAME: ${{ secrets.MAILGUN_SENDER_NAME }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
+          FRONTEND_BASE_URL: ${{ secrets.FRONTEND_BASE_URL }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           ARTIFACT_REPO: ${{ secrets.ARTIFACT_REPO }}
         run: |
@@ -187,7 +191,7 @@ jobs:
             --allow-unauthenticated \
             --port=8080 \
             --memory=512Mi \
-            --set-env-vars="MONGO_URI=$MONGO_URI,JWT_SECRET=$JWT_SECRET,EMAIL_USER=$EMAIL_USER,EMAIL_PASSWORD=$EMAIL_PASSWORD,GEMINI_API_KEY=$GEMINI_API_KEY,BACKEND_BASE_URL=$BACKEND_BASE_URL,FRONTEND_BASE_URL=$FRONTEND_BASE_URL"
+            --set-env-vars="MONGO_URI=$MONGO_URI,JWT_SECRET=$JWT_SECRET,EMAIL_USER=$EMAIL_USER,EMAIL_PASSWORD=$EMAIL_PASSWORD,MAILGUN_SMTP_LOGIN=$MAILGUN_SMTP_LOGIN,MAILGUN_SMTP_PASSWORD=$MAILGUN_SMTP_PASSWORD,MAILGUN_SENDER_EMAIL=$MAILGUN_SENDER_EMAIL,MAILGUN_SENDER_NAME=$MAILGUN_SENDER_NAME,GEMINI_API_KEY=$GEMINI_API_KEY,BACKEND_BASE_URL=$BACKEND_BASE_URL,FRONTEND_BASE_URL=$FRONTEND_BASE_URL"
 
   deploy-frontend:
     needs: [detect-changes, lint, coverage-summary]
