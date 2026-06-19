@@ -271,7 +271,7 @@ All code layers are isolated within Docker engines. The frontend container utili
 * **`sustainatrack-backend`:** Hosts Node.js API container nodes inside the `asia-southeast1` (Jakarta) region. Configured with rigorous operational resource constraint boundaries (`--memory=512Mi`) to prevent computing over-provisioning.
 * **`sustainatrack-frontend`:** Manages interactive client web layouts inside the same regional infrastructure, capped at strict boundaries (`--memory=256Mi`) to optimize active data center power limits.
 #### Database Target Integration
-The computational engine connects securely to a cloud-managed **MongoDB Atlas** cluster environment. Database authorization parameters, access tokens, and API secret environments are dynamically injected at runtime via encrypted environment keys (`MONGO_URI`, `GEMINI_API_KEY`) using automated GitHub Actions Secrets allocation keys.
+The computational engine connects securely to a cloud-managed **MongoDB** cluster environment. Database authorization parameters, access tokens, and API secret environments are dynamically injected at runtime via encrypted environment keys (`MONGO_URI`, `GEMINI_API_KEY`) using automated GitHub Actions Secrets allocation keys.
 
 ---
 
@@ -288,7 +288,6 @@ During verification tests running on active GitHub runner nodes, the automated d
 ### Information Delivery Methods
 - **Data Input**: Users input data in categories such as Shopping, Transport, Electricity, and Food.
 - **Backend Processing**: Node.js processes inputs, calculates emissions, and ensures seamless communication between the frontend and database.
-- **Instant Feedback**: The platform delivers real-time feedback and personalized insights through an interactive, user-friendly interface.
 
 ### Carbon Emission Categories and Reduction Awareness
 - **Categories**: Shopping, Transport, Electricity, and Food.
@@ -303,7 +302,7 @@ During verification tests running on active GitHub runner nodes, the automated d
 ### Verification
 - **Data Accuracy**: The platform includes validation mechanisms to ensure the accuracy of user inputs and calculated carbon footprints. 
 - **User Feedback**: The platform allows users to report discrepancies or errors in the data, ensuring continuous improvement of the system.
-- **Testing**: Postman and other testing tools are used for API testing to verify smooth communication between the frontend and backend, ensuring data integrity and reliability.
+- **Testing**: Testing tools are used for API testing to verify smooth communication between the frontend and backend, ensuring data integrity and reliability.
 
 ---
 
