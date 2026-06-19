@@ -629,7 +629,8 @@ const Home = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 1, ease: 'easeInOut' }}
           >
-            Track Your <span className="text-gradient">Carbon Footprint</span> & Make a Difference
+            Track Your PSO <span className="text-gradient">Carbon Footprint</span> & Make a
+            Difference
           </motion.h1>
 
           <motion.p

@@ -6,7 +6,7 @@ export const getUserProfile = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    const userId = user.id || user._id; // JWT payload uses 'id', fallback to '_id '
+    const userId = user.id || user._id; // JWT payload uses 'id'
     const userProfile = await User.findById(userId).select('-password');
     if (!userProfile) {
       return res.status(404).json({ error: 'User not found' });
